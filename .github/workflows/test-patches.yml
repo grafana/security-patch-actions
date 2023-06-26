@@ -71,6 +71,7 @@ jobs:
           then
             for patchFile in ./patches/${REF}/*.patch; do
               git -C src am -q --committer-date-is-author-date $patchFile
+            done
           else
             echo There are no patches for ${REF}
           fi
