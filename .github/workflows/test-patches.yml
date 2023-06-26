@@ -42,12 +42,6 @@ jobs:
           app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
 
-      - name: "Checkout security-patch-actions"
-        uses: actions/checkout@v3
-        with: 
-          path: security-patch-actions
-          token: ${{ steps.generate_token.outputs.token }}
-
       - name: "Checkout ${{ inputs.patch_repo }}"
         uses: actions/checkout@v3
         with: 
@@ -72,6 +66,8 @@ jobs:
           git config --local user.email ${GIT_USER_EMAIL}
 
           # Apply patches
+          ls -lah
+          ls -lah ../patches/${REF}
           if [ -d "../patches/${REF}" ];
           then
             git am --committer-date-is-author-date ../patches/${REF}/
