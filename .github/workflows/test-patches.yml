@@ -2,6 +2,16 @@ name: Test Patches
 run-name: test-patches-${{ inputs.src_repo }}-${{ inputs.ref }}
 
 on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: true
+        type: string
+      src_repo:
+        required: true
+        type: string
+      patch_repo:
+        required: true
   workflow_call:
     inputs:
       ref:
