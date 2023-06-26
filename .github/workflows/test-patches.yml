@@ -75,7 +75,10 @@ jobs:
           then
             ls -l ./patches/${REF}/*.patch
             for patchFile in ./patches/${REF}/*.patch; do
-              git -C src am -q --committer-date-is-author-date $patchFile
+              patchFileName=$(basename ${patchFile})
+              cp $patchFile src/
+              git -C src am -q --committer-date-is-author-date $patchFileName
+              rm src/$patchFileName
             done
           else
             echo There are no patches for ${REF}
