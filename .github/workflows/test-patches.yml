@@ -73,6 +73,7 @@ jobs:
           # Apply patches
           if [ -d "./patches/${REF}" ];
           then
+            ls -l ./patches/${REF}/*.patch
             for patchFile in ./patches/${REF}/*.patch; do
               git -C src am -q --committer-date-is-author-date $patchFile
             done
