@@ -74,7 +74,7 @@ jobs:
           # Apply patches
           if [ -d "../patches/${REF}" ];
           then
-            git am -q --committer-date-is-author-date ../patches/${REF}/
+            git am --committer-date-is-author-date ../patches/${REF}/
           else
             echo There are no patches for ${REF}
           fi
