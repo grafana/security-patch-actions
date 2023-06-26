@@ -75,6 +75,8 @@ jobs:
             echo There are no patches for ${REF}
           fi
 
+          git log
+
       - name: Handle patch failure
         if: ${{ failure() && steps.patches.conclusion == 'failure' }}
         run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches to the mirror. See the documentation here for how to resolve this error."
