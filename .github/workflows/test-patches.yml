@@ -69,8 +69,8 @@ jobs:
           # Apply patches
           if [ -d "./patches/${REF}" ];
           then
-            find "./patches/${REF}" -name "*.patch" | xargs git -C src am -q --committer-date-is-author-date > /dev/null 2>&1
-            echo "applied $(find $dir -name "*.patch" | wc -l) patches"
+            for patchFile in ./patches/${REF}/*.patch; do
+              git -C src am -q --committer-date-is-author-date $patchFile
           else
             echo There are no patches for ${REF}
           fi
