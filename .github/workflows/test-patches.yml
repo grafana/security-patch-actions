@@ -1,0 +1,69 @@
+name: Test Patches
+run-name: test-patches-${{ inputs.src_repo }}-${{ inputs.ref }}
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      src_repo:
+        required: true
+        type: string
+      patch_repo:
+        required: true
+        type: string
+
+env:
+  SRC_REPO: ${{ inputs.src_repo }}
+  PATCH_REPO: ${{ inputs.patch_repo }}
+  REF: ${{ inputs.ref }}
+  GIT_USER: "github-actions[bot]"
+  GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
+
+jobs:
+  test-patches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Generate token"
+        id: generate_token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+        with:
+          app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
+          private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
+
+      - name: "Checkout security-patch-actions"
+        uses: actions/checkout@v3
+        with: 
+          path: security-patch-actions
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: "Checkout ${{ inputs.patch_repo }}"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.patch_repo }}
+          path: patches 
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: "Checkout ${{ inputs.src_repo }}"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.src_repo }}
+          ref: ${{ inputs.ref }}
+          path: src
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: "Test apply patches to ${{ inputs.ref }}"
+        id: patches:
+        run: |
+          # Apply patches
+          if [ -d "./patches/${REF}" ];
+          then
+            find "./patches/${REF}" -name "*.patch" | xargs git -C src am -q --committer-date-is-author-date > /dev/null 2>&1
+            echo "applied $(find $dir -name "*.patch" | wc -l) patches"
+          fi
+
+      - name: Handle patch failure
+        if: ${{ failure() && steps.patches.conclusion == 'failure' }}
+        run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches to the mirror. See the documentation here for how to resolve this error."
+
