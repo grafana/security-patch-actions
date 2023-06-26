@@ -54,7 +54,7 @@ jobs:
           token: ${{ steps.generate_token.outputs.token }}
 
       - name: "Test apply patches to ${{ inputs.ref }}"
-        id: patches:
+        id: patches
         run: |
           # Apply patches
           if [ -d "./patches/${REF}" ];
