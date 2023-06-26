@@ -65,21 +65,16 @@ jobs:
 
       - name: "Test apply patches to ${{ inputs.ref }}"
         id: patches
+        working-directory: src
         run: |
           # Tell git who we are
-          git -C src config --local user.name ${GIT_USER}
-          git -C src config --local user.email ${GIT_USER_EMAIL}
+          git config --local user.name ${GIT_USER}
+          git config --local user.email ${GIT_USER_EMAIL}
 
           # Apply patches
-          if [ -d "./patches/${REF}" ];
+          if [ -d "../patches/${REF}" ];
           then
-            ls -l ./patches/${REF}/*.patch
-            for patchFile in ./patches/${REF}/*.patch; do
-              patchFileName=$(basename ${patchFile})
-              cp $patchFile src/
-              git -C src am -q --committer-date-is-author-date $patchFileName
-              rm src/$patchFileName
-            done
+            git am -q --committer-date-is-author-date ../patches/${REF}/
           else
             echo There are no patches for ${REF}
           fi
