@@ -71,6 +71,8 @@ jobs:
           then
             find "./patches/${REF}" -name "*.patch" | xargs git -C src am -q --committer-date-is-author-date > /dev/null 2>&1
             echo "applied $(find $dir -name "*.patch" | wc -l) patches"
+          else
+            echo There are no patches for ${REF}
           fi
 
       - name: Handle patch failure
