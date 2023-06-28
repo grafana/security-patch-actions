@@ -83,6 +83,7 @@ jobs:
 
       - name: "Apply patches to ${{ inputs.ref }}"
         id: patch
+        working-directory: src
         run: |
           # Apply patches
           if [ -d "../patches/${REF}" ];
