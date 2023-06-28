@@ -93,7 +93,6 @@ jobs:
             ls -lah ../patches/${REF}
             git am --committer-date-is-author-date ../patches/${REF}/*.patch
             # git am --committer-date-is-author-date -q ../patches/${REF}/*.patch
-            git log
             git status
             echo git push dest "HEAD:${REF}"
             git push dest "HEAD:${REF}"
