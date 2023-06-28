@@ -1,0 +1,103 @@
+name: Mirror Branch and Apply Security Patches
+run-name: mirror-and-apply-patches-${{ inputs.src_repo }}-${{ inputs.ref }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: true
+        type: string
+      src_repo:
+        required: true
+        type: string
+      dest_repo:
+        required: true
+        type: string
+      patch_repo:
+        required: true
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      src_repo:
+        required: true
+        type: string
+      dest_repo:
+        required: true
+        type: string
+      patch_repo:
+        required: true
+        type: string
+
+env:
+  SRC_REPO: ${{ inputs.src_repo }}
+  DEST_REPO: ${{ inputs.dest_repo }}
+  PATCH_REPO: ${{ inputs.patch_repo }}
+  REF: ${{ inputs.ref }}
+  GIT_USER: "github-actions[bot]"
+  GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
+
+jobs:
+  mirror-and-apply-patches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Generate token"
+        id: generate_token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+        with:
+          app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
+          private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
+
+      - name: "Checkout ${{ inputs.patch_repo }}"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.patch_repo }}
+          path: patches 
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: "Checkout ${{ inputs.src_repo }}"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.src_repo }}
+          ref: ${{ inputs.ref }}
+          path: src
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: "Mirror ${{ inputs.src_repo }}/${{ inputs.ref }}"
+        id: mirror
+        working-directory: src
+        run: |
+          # Tell git who we are
+          git config --local user.name ${GIT_USER}
+          git config --local user.email ${GIT_USER_EMAIL}
+
+          # Add DEST_REPO as remote
+          git remote add dest https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO}
+          
+          # Fetch ${DEST_REPO}/${REF}, if it doesn't exist then create it
+          git fetch dest ${REF} || echo Branch does not exist in mirror yet.
+          git status
+          git remote -v
+          echo git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease
+
+      - name: "Apply patches to ${{ inputs.ref }}"
+        id: patch
+        run: |
+          # Apply patches
+          if [ -d "../patches/${REF}" ];
+          then
+            ls -lah ../patches/${REF}
+            git am --committer-date-is-author-date ../patches/${REF}/*.patch
+            # git am --committer-date-is-author-date -q ../patches/${REF}/*.patch
+          else
+            echo There are no patches for ${REF}
+          fi
+          git log
+          git status
+          echo git push origin ${REF}
+
+      - name: Handle patch failure
+        if: ${{ failure() && steps.patches.conclusion == 'failure' }}
+        run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches to the mirror. See the documentation here for how to resolve this error."
+

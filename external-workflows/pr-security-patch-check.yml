@@ -1,6 +1,6 @@
 # Owned by grafana-delivery-squad
-name: Check for conflicts in grafana-security-mirror
-run-name: check-security-patch-conflicts-${{ github.ref_name }}-${{ github.sha }}
+name: Check for security patch conflicts
+run-name: check-security-patch-conflicts-${{ github.ref_name }}-${{ github.head_ref }}
 on:
   pull_request_target:
     types:
@@ -10,22 +10,10 @@ on:
       - "v*"
 
 jobs:
-  trigger-downstream-patch-check:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Generate token"
-        id: generate_token
-        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
-        with:
-          app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
-          private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
-
-      - name: "Trigger downstream patch check"
-        env:
-          GH_TOKEN: "${{ steps.generate_token.outputs.token }}"
-        run: |
-          gh workflow run test-patches.yml \
-          -f ref=${{ github.base_ref }} \
-          -f src_repo=${{ github.repository }} \
-          -f patch_repo=${{ github.repository }}-security-patches \
-          --repo grafana/security-patch-actions
+  trigger_downstream_patch_check:
+    uses: grafana/security-patch-actions/.github/workflows/test-patches.yml@main
+    with:
+      ref: "${{ github.base_ref }}"
+      src_repo: "${{ github.repository }}"
+      patch_repo: "${{ github.repository }}-security-patches"
+    secrets: inherit
