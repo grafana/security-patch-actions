@@ -64,7 +64,7 @@ jobs:
           path: src
           token: ${{ steps.generate_token.outputs.token }}
 
-      - name: "Mirror ${{ inputs.src_repo }}/${{ inputs.ref }}"
+      - name: "Mirror ${{ inputs.src_repo }} ${{ inputs.ref }} to ${{ inputs.dest_repo }}"
         id: mirror
         working-directory: src
         run: |
@@ -80,6 +80,7 @@ jobs:
           git status
           git remote -v
           echo git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease
+          git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease
 
       - name: "Apply patches to ${{ inputs.ref }}"
         id: patch
@@ -91,12 +92,13 @@ jobs:
             ls -lah ../patches/${REF}
             git am --committer-date-is-author-date ../patches/${REF}/*.patch
             # git am --committer-date-is-author-date -q ../patches/${REF}/*.patch
+            git log
+            git status
+            echo git push dest "HEAD:${REF}"
+            git push dest "HEAD:${REF}"
           else
             echo There are no patches for ${REF}
           fi
-          git log
-          git status
-          echo git push origin ${REF}
 
       - name: Handle patch failure
         if: ${{ failure() && steps.patches.conclusion == 'failure' }}
