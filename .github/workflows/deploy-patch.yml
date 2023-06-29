@@ -1,0 +1,98 @@
+name: Deploy Security Patch
+run-name: deploy-patch-${{ inputs.dest_repo }}-${{ inputs.ref }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: true
+        type: string
+      dest_repo:
+        required: true
+        type: string
+      patch_repo:
+        required: true
+        type: string
+      patch_name:
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      dest_repo:
+        required: true
+        type: string
+      patch_repo:
+        required: true
+        type: string
+      patch_name:
+        required: true
+        type: string
+
+env:
+  DEST_REPO: ${{ inputs.dest_repo }}
+  PATCH_REPO: ${{ inputs.patch_repo }}
+  PATCH_NAME: ${{ inputs.patch_name }}
+  REF: ${{ inputs.ref }}
+  GIT_USER: "github-actions[bot]"
+  GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
+
+jobs:
+  deploy-patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Generate token"
+        id: generate_token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+        with:
+          app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
+          private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
+
+      - name: "Checkout ${{ inputs.patch_repo }}"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.patch_repo }}
+          path: patches 
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: "Checkout ${{ inputs.dest_repo }}"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.dest_repo }}
+          ref: ${{ inputs.ref }}
+          path: dest
+          token: ${{ steps.generate_token.outputs.token }}
+      
+      - name: "Deploy patch to ${{ inputs.dest_repo}} ${{ inputs.ref }}"
+        id: patch
+        working-directory: dest
+        run: |
+          # Tell git who we are
+          git config --local user.name ${GIT_USER}
+          git config --local user.email ${GIT_USER_EMAIL}
+
+          # Apply patch
+          if [ -f "../patches/${REF}/${PATCH_NAME}" ];
+          then
+            git am --committer-date-is-author-date ../patches/${REF}/${PATCH_NAME}
+            # git am --committer-date-is-author-date -q ../patches/${REF}/${PATCH_NAME}
+            git status
+
+          else
+            echo There are no patches for ${REF}
+          fi
+
+      - name: Handle patch failure
+        if: ${{ failure() && steps.patches.conclusion == 'failure' }}
+        run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches to the mirror. See the documentation here for how to resolve this error."
+
+      - name: Create pull request with patch commit
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+          path: dest
+          branch: ${{ inputs.patch_name }}}
+          title: Apply security patch ${{ inputs.patch_name }}
+
