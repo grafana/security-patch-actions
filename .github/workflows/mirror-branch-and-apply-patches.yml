@@ -83,8 +83,8 @@ jobs:
           echo git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease
           git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease
 
-      - name: "Apply patches to ${{ inputs.ref }}"
-        id: patch
+      - name: "Apply patches to ${{ inputs.dest_repo}} ${{ inputs.ref }}"
+        id: patches
         working-directory: src
         run: |
           # Apply patches
