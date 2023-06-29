@@ -23,6 +23,7 @@ jobs:
     secrets: inherit
   trigger_downstream_security_patching:
     concurrency: security-mirror-${{ github.ref }}
+    needs: trigger_downstream_security_mirror:
     if: github.event.pull_request.merged == true
     uses: grafana/security-patch-actions/.github/workflows/apply-patches.yml@main
     with:

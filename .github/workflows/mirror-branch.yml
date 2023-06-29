@@ -43,7 +43,7 @@ jobs:
           app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
 
-      - name: "Checkout ${{ inputs.src_repo }}"
+      - name: "Checkout ${{ inputs.src_repo }} ${{ inputs.ref }}"
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.src_repo }}

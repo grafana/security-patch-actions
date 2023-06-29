@@ -51,7 +51,7 @@ jobs:
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
 
       # Everything in the patch repo lives in main, patch_ref is the folder to use
-      - name: "Checkout ${{ inputs.patch_repo }}"
+      - name: "Checkout ${{ inputs.patch_repo }} main"
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.patch_repo }}

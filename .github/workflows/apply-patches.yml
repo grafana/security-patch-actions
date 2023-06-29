@@ -43,14 +43,14 @@ jobs:
           app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
 
-      - name: "Checkout ${{ inputs.patch_repo }}"
+      - name: "Checkout ${{ inputs.patch_repo }} main"
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.patch_repo }}
           path: patches 
           token: ${{ steps.generate_token.outputs.token }}
 
-      - name: "Checkout ${{ inputs.dest_repo }}"
+      - name: "Checkout ${{ inputs.dest_repo }} ${{ inputs.ref }}"
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.dest_repo }}
