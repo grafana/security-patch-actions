@@ -93,6 +93,6 @@ jobs:
         with:
           token: ${{ steps.generate_token.outputs.token }}
           path: dest
-          branch: ${{ inputs.patch_name }}}
+          branch: ${{ inputs.patch_name }}
           title: Apply security patch ${{ inputs.patch_name }}
 
