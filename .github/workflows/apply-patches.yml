@@ -12,6 +12,7 @@ on:
         type: string
       patch_repo:
         required: true
+        type: string
   workflow_call:
     inputs:
       ref:

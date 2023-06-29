@@ -1,5 +1,5 @@
-name: Mirror Branch and Apply Security Patches
-run-name: mirror-and-apply-patches-${{ inputs.src_repo }}-${{ inputs.ref }}
+name: Mirror Branch to Security Mirror
+run-name: mirror-branch-${{ inputs.src_repo }}-${{ inputs.ref }}
 
 on:
   workflow_dispatch:
@@ -13,8 +13,6 @@ on:
       dest_repo:
         required: true
         type: string
-      patch_repo:
-        required: true
   workflow_call:
     inputs:
       ref:
@@ -26,20 +24,16 @@ on:
       dest_repo:
         required: true
         type: string
-      patch_repo:
-        required: true
-        type: string
 
 env:
   SRC_REPO: ${{ inputs.src_repo }}
   DEST_REPO: ${{ inputs.dest_repo }}
-  PATCH_REPO: ${{ inputs.patch_repo }}
   REF: ${{ inputs.ref }}
   GIT_USER: "github-actions[bot]"
   GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
 
 jobs:
-  mirror-and-apply-patches:
+  mirror-branch:
     runs-on: ubuntu-latest
     steps:
       - name: "Generate token"
@@ -48,13 +42,6 @@ jobs:
         with:
           app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
-
-      - name: "Checkout ${{ inputs.patch_repo }}"
-        uses: actions/checkout@v3
-        with: 
-          repository: ${{ inputs.patch_repo }}
-          path: patches 
-          token: ${{ steps.generate_token.outputs.token }}
 
       - name: "Checkout ${{ inputs.src_repo }}"
         uses: actions/checkout@v3
@@ -82,25 +69,4 @@ jobs:
           git remote -v
           echo git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease
           git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease
-
-      - name: "Apply patches to ${{ inputs.dest_repo}} ${{ inputs.ref }}"
-        id: patches
-        working-directory: src
-        run: |
-          # Apply patches
-          if [ -d "../patches/${REF}" ];
-          then
-            ls -lah ../patches/${REF}
-            git am --committer-date-is-author-date ../patches/${REF}/*.patch
-            # git am --committer-date-is-author-date -q ../patches/${REF}/*.patch
-            git status
-            echo git push dest "HEAD:${REF}"
-            git push dest "HEAD:${REF}"
-          else
-            echo There are no patches for ${REF}
-          fi
-
-      - name: Handle patch failure
-        if: ${{ failure() && steps.patches.conclusion == 'failure' }}
-        run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches to the mirror. See the documentation here for how to resolve this error."
 

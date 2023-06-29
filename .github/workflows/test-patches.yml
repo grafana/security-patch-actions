@@ -4,20 +4,27 @@ run-name: test-patches-${{ inputs.src_repo }}-${{ inputs.ref }}
 on:
   workflow_dispatch:
     inputs:
-      ref:
+      src_ref:
         required: true
         type: string
       src_repo:
+        required: true
+        type: string
+      patch_ref:
         required: true
         type: string
       patch_repo:
         required: true
+        type: string
   workflow_call:
     inputs:
-      ref:
+      src_ref:
         required: true
         type: string
       src_repo:
+        required: true
+        type: string
+      patch_ref:
         required: true
         type: string
       patch_repo:
@@ -27,7 +34,8 @@ on:
 env:
   SRC_REPO: ${{ inputs.src_repo }}
   PATCH_REPO: ${{ inputs.patch_repo }}
-  REF: ${{ inputs.ref }}
+  SRC_REF: ${{ inputs.src_ref }}
+  PATCH_REF: ${{ inputs.patch_ref }}
   GIT_USER: "github-actions[bot]"
   GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
 
@@ -42,6 +50,7 @@ jobs:
           app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
 
+      # Everything in the patch repo lives in main, patch_ref is the folder to use
       - name: "Checkout ${{ inputs.patch_repo }}"
         uses: actions/checkout@v3
         with: 
@@ -49,15 +58,15 @@ jobs:
           path: patches 
           token: ${{ steps.generate_token.outputs.token }}
 
-      - name: "Checkout ${{ inputs.src_repo }}"
+      - name: "Checkout ${{ inputs.src_repo }} ${{ inputs.src_ref }}"
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.src_repo }}
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.src_ref }}
           path: src
           token: ${{ steps.generate_token.outputs.token }}
 
-      - name: "Test apply patches to ${{ inputs.ref }}"
+      - name: "Test apply patches for ${{ inputs.patch_ref }} to ${{ inputs.src_ref }}"
         id: patches
         working-directory: src
         run: |
@@ -66,13 +75,13 @@ jobs:
           git config --local user.email ${GIT_USER_EMAIL}
 
           # Apply patches
-          if [ -d "../patches/${REF}" ];
+          if [ -d "../patches/${PATCH_REF}" ];
           then
-            ls -lah ../patches/${REF}
-            git am --committer-date-is-author-date ../patches/${REF}/*.patch
-            # git am --committer-date-is-author-date -q ../patches/${REF}/*.patch
+            ls -lah ../patches/${PATCH_REF}
+            git am --committer-date-is-author-date ../patches/${PATCH_REF}/*.patch
+            # git am --committer-date-is-author-date -q ../patches/${PATCH_REF}/*.patch
           else
-            echo There are no patches for ${REF}
+            echo There are no patches for ${PATCH_REF}
           fi
           git log
 
