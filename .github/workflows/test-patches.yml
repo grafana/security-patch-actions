@@ -77,12 +77,10 @@ jobs:
           # Apply patches
           if [ -d "../patches/${PATCH_REF}" ];
           then
-            ls -lah ../patches/${PATCH_REF}
             git am --committer-date-is-author-date -q ../patches/${PATCH_REF}/*.patch
           else
             echo There are no patches for ${PATCH_REF}
           fi
-          git log
 
       - name: Handle patch failure
         if: ${{ failure() && steps.patches.conclusion == 'failure' }}

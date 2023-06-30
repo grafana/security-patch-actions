@@ -65,8 +65,5 @@ jobs:
           
           # Fetch ${DEST_REPO}/${REF}, if it doesn't exist then create it
           git fetch dest ${REF} || echo Branch does not exist in mirror yet.
-          git status
-          git remote -v
-          echo git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease
           git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease
 
