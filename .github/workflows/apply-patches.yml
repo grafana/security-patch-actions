@@ -71,8 +71,7 @@ jobs:
           if [ -d "../patches/${REF}" ];
           then
             ls -lah ../patches/${REF}
-            git am --committer-date-is-author-date ../patches/${REF}/*.patch
-            # git am --committer-date-is-author-date -q ../patches/${REF}/*.patch
+            git am --committer-date-is-author-date -q ../patches/${REF}/*.patch
             git status
             echo git push origin ${REF}
             git push origin ${REF}

@@ -76,8 +76,7 @@ jobs:
           # Apply patch
           if [ -f "../patches/${REF}/${PATCH_NAME}" ];
           then
-            git am --committer-date-is-author-date ../patches/${REF}/${PATCH_NAME}
-            # git am --committer-date-is-author-date -q ../patches/${REF}/${PATCH_NAME}
+            git am --committer-date-is-author-date -q ../patches/${REF}/${PATCH_NAME}
             git status
 
           else
