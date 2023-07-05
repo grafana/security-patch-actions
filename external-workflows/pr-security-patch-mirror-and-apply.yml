@@ -8,9 +8,9 @@ on:
       - closed
     branches:
       - "main"
-      - "v*"
+      - "v*.*.*"
 
-# This is run post pull request merge, so we'll run against the target branch
+# This is run after the pull request has been merged, so we'll run against the target branch
 jobs:
   trigger_downstream_security_mirror:
     concurrency: security-mirror-${{ github.ref }}
@@ -21,9 +21,10 @@ jobs:
       src_repo: "${{ github.repository }}"
       dest_repo: "${{ github.repository }}-security-mirror"
     secrets: inherit
+
   trigger_downstream_security_patching:
-    concurrency: security-mirror-${{ github.ref }}
     needs: trigger_downstream_security_mirror
+    concurrency: security-mirror-${{ github.ref }}
     if: github.event.pull_request.merged == true
     uses: grafana/security-patch-actions/.github/workflows/apply-patches.yml@main
     with:
