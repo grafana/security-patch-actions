@@ -76,10 +76,9 @@ jobs:
           # Apply patch
           if [ -f "../patches/${REF}/${PATCH_NAME}" ];
           then
-            git am --committer-date-is-author-date -q ../patches/${REF}/${PATCH_NAME}
-          else
-            echo There are no patches for ${REF}
+            git am --committer-date-is-author-date -q ../patches/${REF}/${PATCH_NAME} > /dev/null 2>&1
           fi
+          echo Patches applied.
 
       - name: Handle patch failure
         if: ${{ failure() && steps.patches.conclusion == 'failure' }}
@@ -92,4 +91,5 @@ jobs:
           path: dest
           branch: ${{ inputs.patch_name }}
           title: Apply security patch ${{ inputs.patch_name }}
+          body: Apply security patch ${{ inputs.patch_name }}
 
