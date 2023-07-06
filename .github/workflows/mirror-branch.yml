@@ -61,9 +61,10 @@ jobs:
           git config --local user.email ${GIT_USER_EMAIL}
 
           # Add DEST_REPO as remote
-          git remote add dest https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO}
+          git remote add dest https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO} > /dev/null 2>&1
           
           # Fetch ${DEST_REPO}/${REF}, if it doesn't exist then create it
-          git fetch dest ${REF} || echo Branch does not exist in mirror yet.
-          git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease
+          git fetch dest ${REF} > /dev/null 2>&1 || echo "" > /dev/null 2>&1
+          git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease > /dev/null 2>&1
+          echo Branch mirrored.
 

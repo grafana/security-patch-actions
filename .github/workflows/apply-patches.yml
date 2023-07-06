@@ -71,10 +71,9 @@ jobs:
           if [ -d "../patches/${REF}" ];
           then
             git am --committer-date-is-author-date -q ../patches/${REF}/*.patch > /dev/null 2>&1
-            git push origin ${REF}
-          else
-            echo There are no patches for ${REF}
+            git push origin ${REF} > /dev/null 2>&1
           fi
+          echo Patches applied.
 
       - name: Handle patch failure
         if: ${{ failure() && steps.patches.conclusion == 'failure' }}
