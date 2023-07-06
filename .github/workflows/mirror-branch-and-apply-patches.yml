@@ -34,7 +34,7 @@ on:
 env:
   SRC_REPO: ${{ inputs.src_repo }}
   DEST_REPO: ${{ inputs.dest_repo }}
-  PATCH_REPO: ${{ inputs.dest_repo }}
+  PATCH_REPO: ${{ inputs.patch_repo }}
   REF: ${{ inputs.ref }}
   GIT_USER: "github-actions[bot]"
   GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
@@ -82,9 +82,17 @@ jobs:
           path: patches 
           token: ${{ steps.generate_token.outputs.token }}
 
+      - name: "Checkout ${{ inputs.dest_repo }} ${{ inputs.ref }}"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.dest_repo }}
+          ref: ${{ inputs.ref }}
+          path: dest 
+          token: ${{ steps.generate_token.outputs.token }}
+
       - name: "Apply patches to ${{ inputs.dest_repo}} ${{ inputs.ref }}"
         id: patches
-        working-directory: dest
+        working-directory: dest 
         run: |
           # Tell git who we are
           git config --local user.name ${GIT_USER}
