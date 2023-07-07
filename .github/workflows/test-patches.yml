@@ -51,14 +51,14 @@ jobs:
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
 
       # Everything in the patch repo lives in main, patch_ref is the folder to use
-      - name: "Checkout ${{ inputs.patch_repo }} main"
+      - name: "Checkout patch repo"
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.patch_repo }}
           path: patches 
           token: ${{ steps.generate_token.outputs.token }}
 
-      - name: "Checkout ${{ inputs.src_repo }} ${{ inputs.src_ref }}"
+      - name: "Checkout src repo"
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.src_repo }}
@@ -66,7 +66,7 @@ jobs:
           path: src
           token: ${{ steps.generate_token.outputs.token }}
 
-      - name: "Test apply patches for ${{ inputs.patch_ref }} to ${{ inputs.src_ref }}"
+      - name: "Test patch application"
         id: patches
         working-directory: src
         run: |

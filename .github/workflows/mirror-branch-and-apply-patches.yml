@@ -50,7 +50,7 @@ jobs:
           app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
 
-      - name: "Checkout ${{ inputs.src_repo }} ${{ inputs.ref }}"
+      - name: "Checkout src repo"
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.src_repo }}
@@ -59,7 +59,7 @@ jobs:
           token: ${{ steps.generate_token.outputs.token }}
           fetch-depth: 0
 
-      - name: "Mirror ${{ inputs.src_repo }} ${{ inputs.ref }} to ${{ inputs.dest_repo }}"
+      - name: "Mirror src repo"
         id: mirror
         working-directory: src
         run: |
@@ -75,14 +75,14 @@ jobs:
           git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease > /dev/null 2>&1
           echo Branch mirrored.
 
-      - name: "Checkout ${{ inputs.patch_repo }} main"
+      - name: "Checkout patch repo"
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.patch_repo }}
           path: patches 
           token: ${{ steps.generate_token.outputs.token }}
 
-      - name: "Checkout ${{ inputs.dest_repo }} ${{ inputs.ref }}"
+      - name: "Checkout dest repo"
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.dest_repo }}
@@ -90,7 +90,7 @@ jobs:
           path: dest 
           token: ${{ steps.generate_token.outputs.token }}
 
-      - name: "Apply patches to ${{ inputs.dest_repo}} ${{ inputs.ref }}"
+      - name: "Apply patches"
         id: patches
         working-directory: dest 
         run: |
