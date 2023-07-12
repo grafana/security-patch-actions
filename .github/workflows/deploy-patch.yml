@@ -43,10 +43,6 @@ jobs:
   deploy-patch:
     runs-on: ubuntu-latest
     steps:
-      - name: "Ensure Grafana org membership"
-        run: |
-          is_org_member=$(gh api graphql -F user='${{ sender.login }}' -f query='query($user: String!) { user(login: $user) { organization(login: "grafana") { id } } }' | jq .data.user.organization)
-          if [[ is_org_member == "null" ]]; then return 1; fi
       - name: "Generate token"
         id: generate_token
         uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
