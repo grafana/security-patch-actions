@@ -57,15 +57,10 @@ jobs:
           export org_state=$(gh api orgs/grafana/memberships/${{ github.event.sender.login }} -q .state)
           echo "Checking org membership of Grafana for ${{ github.event.sender.login }}. State: ${org_state}"
           echo "ORG_STATE=${org_state}" >> "$GITHUB_OUTPUT"
-      - name: "Ensure user is an active Grafana member"
-        if: steps.org-state.outputs.ORG_STATE != 'active'
-        uses: actions/github-script@v3
-        with:
-          script: |
-            core.setFailed('${{ github.event.sender.login}} is not an active member of the "grafana" org. State: ${{ steps.org-state.outputs.ORG_STATE }}.')
       # Everything in the patch repo lives in main, patch_ref is the folder to use
       - name: "Checkout patch repo"
         uses: actions/checkout@v3
+        if: steps.org-state.outputs.ORG_STATE == 'active'
         with: 
           repository: ${{ inputs.patch_repo }}
           path: patches 
@@ -73,6 +68,7 @@ jobs:
 
       - name: "Checkout src repo"
         uses: actions/checkout@v3
+        if: steps.org-state.outputs.ORG_STATE == 'active'
         with: 
           repository: ${{ inputs.src_repo }}
           ref: ${{ inputs.src_ref }}
@@ -81,6 +77,7 @@ jobs:
 
       - name: "Test patch application"
         id: patches
+        if: steps.org-state.outputs.ORG_STATE == 'active'
         working-directory: src
         run: |
           # Tell git who we are
@@ -95,6 +92,6 @@ jobs:
           echo Patches applied.
 
       - name: Handle patch failure
-        if: ${{ failure() && steps.patches.conclusion == 'failure' }}
+        if: ${{ failure() && steps.patches.conclusion == 'failure' }} && steps.org-state.outputs.ORG_STATE == 'active'
         run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches to the mirror. See the documentation here for how to resolve this error."
 
