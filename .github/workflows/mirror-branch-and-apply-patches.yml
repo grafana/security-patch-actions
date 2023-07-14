@@ -134,6 +134,8 @@ jobs:
               echo "git am returned zero exit code; changes are compatible"
               git am --ignore-whitespace --ignore-space-change --committer-date-is-author-date ../patches/${DIR}/*.patch
             fi
+          else
+            echo "Folder ${DIR} does not exist"
           fi
 
           git push origin ${REF} > /dev/null 2>&1
