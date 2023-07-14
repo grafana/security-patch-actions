@@ -124,11 +124,14 @@ jobs:
               # Ignore non-zero errors because `git am` will return > 0 if there are conflicts.
               if [[ ! "git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date -q ../patches/${DIR}/*.patch" ]];
               then
+                echo "git am returned non-zero exit code"
+                git diff
                 # Add because these commits are unstaged
                 git add .
                 git commit -m "Add conflicting files..." --no-verify
               fi
             else
+              echo "git am returned zero exit code; changes are compatible"
               git am --ignore-whitespace --ignore-space-change --committer-date-is-author-date -q ../patches/${DIR}/*.patch
             fi
           fi
