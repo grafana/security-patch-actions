@@ -118,7 +118,7 @@ jobs:
           # Apply patches
           if [ -d "../patches/${DIR}" ];
           then
-            git am $(if [ ${{ inputs.with_conflicts }} ]; then echo '--3way'; fi) --ignore-whitespace --ignore-space-change --committer-date-is-author-date -q ../patches/${REF}/*.patch > /dev/null 2>&1
+            git am $(if [ ${{ inputs.with_conflicts }} ]; then echo '--3way'; fi) --ignore-whitespace --ignore-space-change --committer-date-is-author-date -q ../patches/${REF}/*.patch
             git push origin ${REF} > /dev/null 2>&1
           fi
 
