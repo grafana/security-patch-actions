@@ -16,6 +16,10 @@ on:
       patch_repo:
         required: true
         type: string
+      patch_dir:
+        required: false
+        type: string
+        default: ${{ inputs.ref }}
       # 3way is used to apply the patches using a 3way merge strategy (git am --3way). This will apply the patches in the event of a conflict
       # This should only be used when handling events where conflicts want to be seen.
       with_conflicts:
@@ -36,6 +40,10 @@ on:
       patch_repo:
         required: true
         type: string
+      patch_dir:
+        required: false
+        type: string
+        default: ${{ inputs.ref }}
       with_conflicts:
         required: false
         type: boolean
@@ -108,7 +116,7 @@ jobs:
           git config --local user.email ${GIT_USER_EMAIL}
 
           # Apply patches
-          if [ -d "../patches/${REF}" ];
+          if [ -d "../patches/${patch_dir}" ];
           then
             git am $(if [ ${{ inputs.with_conflicts }} ]; then echo '--3way'; fi) --ignore-whitespace --ignore-space-change --committer-date-is-author-date -q ../patches/${REF}/*.patch > /dev/null 2>&1
             git push origin ${REF} > /dev/null 2>&1
