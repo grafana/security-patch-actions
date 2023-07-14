@@ -118,9 +118,22 @@ jobs:
           # Apply patches
           if [ -d "../patches/${DIR}" ];
           then
-            git am $(if [ ${{ inputs.with_conflicts }} ]; then echo '--3way'; fi) --ignore-whitespace --ignore-space-change --committer-date-is-author-date -q ../patches/${DIR}/*.patch
-            git push origin ${REF} > /dev/null 2>&1
+            # If we're applying patches with conflicts then ignore the errors and add.
+            if [ ${{ inputs.with_conflicts }} ];
+            then 
+              # Ignore non-zero errors because `git am` will return > 0 if there are conflicts.
+              if [[ ! "git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date -q ../patches/${DIR}/*.patch" ]];
+              then
+                # Add because these commits are unstaged
+                git add .
+                git commit -m "Add conflicting files..." --no-verify
+              fi
+            else
+              git am --ignore-whitespace --ignore-space-change --committer-date-is-author-date -q ../patches/${DIR}/*.patch
+            fi
           fi
+
+          git push origin ${REF} > /dev/null 2>&1
 
           echo Patches applied.
 
