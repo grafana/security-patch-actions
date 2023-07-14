@@ -16,6 +16,12 @@ on:
       patch_repo:
         required: true
         type: string
+      # 3way is used to apply the patches using a 3way merge strategy (git am --3way). This will apply the patches in the event of a conflict
+      # This should only be used when handling events where conflicts want to be seen.
+      3way:
+        required: false
+        type: bool
+        default: false
   workflow_call:
     inputs:
       ref:
@@ -30,7 +36,10 @@ on:
       patch_repo:
         required: true
         type: string
-
+      3way:
+        required: false
+        type: bool
+        default: false
 env:
   SRC_REPO: ${{ inputs.src_repo }}
   DEST_REPO: ${{ inputs.dest_repo }}
@@ -101,9 +110,10 @@ jobs:
           # Apply patches
           if [ -d "../patches/${REF}" ];
           then
-            git am --committer-date-is-author-date -q ../patches/${REF}/*.patch > /dev/null 2>&1
+            git am $(if [ ${{ inputs.3way }} ]; then echo '--3way'; fi) --ignore-whitespace --ignore-space-change --committer-date-is-author-date -q ../patches/${REF}/*.patch > /dev/null 2>&1
             git push origin ${REF} > /dev/null 2>&1
           fi
+
           echo Patches applied.
 
       - name: Handle patch failure
