@@ -130,7 +130,7 @@ jobs:
                 git add .
                 git commit -m "Add conflicting files..." --no-verify
               else
-                echo "3way patch applied iwthou"
+                echo "3way patch applied without errors"
               fi
             else
               echo "git am returned zero exit code; changes are compatible"
