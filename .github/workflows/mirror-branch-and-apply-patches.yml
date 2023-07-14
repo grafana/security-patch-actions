@@ -129,6 +129,9 @@ jobs:
                 # Add because these commits are unstaged
                 git add .
                 git commit -m "Add conflicting files..." --no-verify
+              else
+                echo "3way patch applied without error"
+                git diff
               fi
             else
               echo "git am returned zero exit code; changes are compatible"
