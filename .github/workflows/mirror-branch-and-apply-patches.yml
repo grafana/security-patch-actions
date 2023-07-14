@@ -20,7 +20,7 @@ on:
       # This should only be used when handling events where conflicts want to be seen.
       3way:
         required: false
-        type: bool
+        type: boolean
         default: false
   workflow_call:
     inputs:
@@ -38,7 +38,7 @@ on:
         type: string
       3way:
         required: false
-        type: bool
+        type: boolean
         default: false
 env:
   SRC_REPO: ${{ inputs.src_repo }}
