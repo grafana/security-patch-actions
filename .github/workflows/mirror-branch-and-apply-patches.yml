@@ -16,6 +16,15 @@ on:
       patch_repo:
         required: true
         type: string
+      patch_dir:
+        required: false
+        type: string
+      # with_conflicts is used to apply the patches using a 3way merge strategy (git am --3way). This will apply the patches in the event of a conflict
+      # This should only be used when handling events where conflicts want to be seen.
+      with_conflicts:
+        required: false
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       ref:
@@ -30,7 +39,13 @@ on:
       patch_repo:
         required: true
         type: string
-
+      patch_dir:
+        required: false
+        type: string
+      with_conflicts:
+        required: false
+        type: boolean
+        default: false
 env:
   SRC_REPO: ${{ inputs.src_repo }}
   DEST_REPO: ${{ inputs.dest_repo }}
@@ -94,20 +109,33 @@ jobs:
         id: patches
         working-directory: dest 
         run: |
+          PATCH_DIR_INPUT=${{ inputs.patch_dir }}
+          DIR="${PATCH_DIR_INPUT:-$REF}"
           # Tell git who we are
           git config --local user.name ${GIT_USER}
           git config --local user.email ${GIT_USER_EMAIL}
 
-          # Apply patches
-          if [ -d "../patches/${REF}" ];
+          # Apply patches if the directory exists
+          if [ -d "../patches/${DIR}" ];
           then
-            git am --committer-date-is-author-date -q ../patches/${REF}/*.patch > /dev/null 2>&1
-            git push origin ${REF} > /dev/null 2>&1
+            # If we're applying patches with conflicts then ignore the errors and `git add / git commit` the differences.
+            if [ ${{ inputs.with_conflicts }} ];
+            then 
+              # If `git am --3way` is not successful then `git add / git commit`.
+              if ! git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date ../patches/${DIR}/*.patch;
+              then
+                # Add because these commits are unstaged
+                git add .
+                git commit -m "Add conflicting files..." --no-verify
+              fi
+            else
+              # git am returned zero exit code; changes are compatible
+              git am --ignore-whitespace --ignore-space-change --committer-date-is-author-date ../patches/${DIR}/*.patch
+            fi
           fi
-          echo Patches applied.
+
+          git push origin ${REF} > /dev/null 2>&1
 
       - name: Handle patch failure
         if: ${{ failure() && steps.patches.conclusion == 'failure' }}
         run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches to the mirror. See the documentation here for how to resolve this error."
-
-      
