@@ -87,11 +87,15 @@ jobs:
           # Apply patches
           if [ -d "../patches/${PATCH_REF}" ];
           then
+            echo "Folder exists; applying patches"
             git am --committer-date-is-author-date -q ../patches/${PATCH_REF}/*.patch > /dev/null 2>&1
+            echo "git am returned $?"
+          else
+            echo "Folder does not exist"
           fi
+
           echo Patches applied.
 
       - name: Handle patch failure
         if: ${{ failure() && steps.patches.conclusion == 'failure' }} && steps.org-state.outputs.ORG_STATE == 'active'
         run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches to the mirror. See the documentation here for how to resolve this error."
-
