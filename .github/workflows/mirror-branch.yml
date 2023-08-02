@@ -1,0 +1,68 @@
+name: Mirror Branch
+run-name: mirror-branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        required: true
+        type: string
+      src_repo:
+        required: true
+        type: string
+      dest_repo:
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      src_repo:
+        required: true
+        type: string
+      dest_repo:
+        required: true
+        type: string
+env:
+  SRC_REPO: ${{ inputs.src_repo }}
+  DEST_REPO: ${{ inputs.dest_repo }}
+  REF: ${{ inputs.ref }}
+  GIT_USER: "github-actions[bot]"
+  GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
+
+jobs:
+  mirror-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Generate token"
+        id: generate_token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+        with:
+          app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
+          private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
+
+      - name: "Checkout src repo"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.src_repo }}
+          ref: ${{ inputs.ref }}
+          path: src
+          token: ${{ steps.generate_token.outputs.token }}
+          fetch-depth: 0
+
+      - name: "Mirror src repo"
+        id: mirror
+        working-directory: src
+        run: |
+          # Tell git who we are
+          git config --local user.name ${GIT_USER}
+          git config --local user.email ${GIT_USER_EMAIL}
+
+          # Add DEST_REPO as remote
+          git remote add dest https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO} > /dev/null 2>&1
+          
+          # Fetch ${DEST_REPO}/${REF}, if it doesn't exist then create it
+          git fetch dest ${REF} > /dev/null 2>&1 || echo "" > /dev/null 2>&1
+          git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease > /dev/null 2>&1
+          echo Branch mirrored.

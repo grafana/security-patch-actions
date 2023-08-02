@@ -1,5 +1,5 @@
-name: Mirror Branch to Security Mirror
-run-name: mirror-branch-${{ inputs.src_repo }}-${{ inputs.ref }}
+name: Mirror branch and apply patches
+run-name: mirror-branch-with-patches
 
 on:
   workflow_dispatch:

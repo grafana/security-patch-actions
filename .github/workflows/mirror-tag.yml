@@ -1,0 +1,63 @@
+name: Mirror Tag
+run-name: mirror-tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+        type: string
+      src_repo:
+        required: true
+        type: string
+      dest_repo:
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+      src_repo:
+        required: true
+        type: string
+      dest_repo:
+        required: true
+        type: string
+env:
+  SRC_REPO: ${{ inputs.src_repo }}
+  DEST_REPO: ${{ inputs.dest_repo }}
+  REF: ${{ inputs.ref }}
+  GIT_USER: "github-actions[bot]"
+  GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
+
+jobs:
+  mirror-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Generate token"
+        id: generate_token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+        with:
+          app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
+          private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
+
+      - name: "Checkout source repo"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.src_repo }}
+          tag: ${{ inputs.ref }}
+          path: src
+          token: ${{ steps.generate_token.outputs.token }}
+          fetch-depth: 0
+
+      - name: "Mirror source tag"
+        id: mirror
+        working-directory: src
+        run: |
+          # Tell git who we are
+          git config --local user.name ${GIT_USER}
+          git config --local user.email ${GIT_USER_EMAIL}
+
+          # Push the given tag to the destination repo.
+          git push https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO} ${{ inputs.tag }}
