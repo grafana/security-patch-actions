@@ -1,0 +1,35 @@
+# Owned by grafana-delivery-squad
+# Intended to be dropped into the base repo, Ex: grafana/grafana
+name: Sync to mirror
+<<<<<<< HEAD
+run-name: sync-to-mirror-${{ github.ref_name }}
+=======
+run-name: sync-to-mirror-${{ github.base_ref }}-${{ github.head_ref }}
+>>>>>>> 148b6186b70fce90e9d3b830094bb97c70a2f40f
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "v*.*.*"
+      - "release-*"
+
+# This is run after the pull request has been merged, so we'll run against the target branch
+jobs:
+  trigger_downstream_patch_mirror:
+<<<<<<< HEAD
+    concurrency: patch-mirror-${{ github.ref_name }}
+    uses: grafana/security-patch-actions/.github/workflows/mirror-branch-and-apply-patches.yml@develop
+    if: github.repository == 'grafana/grafana-ci-sandbox'
+=======
+    concurrency: patch-mirror-${{ github.ref }}
+    uses: grafana/security-patch-actions/.github/workflows/mirror-branch-and-apply-patches.yml@main
+    if: github.repository == 'grafana/grafana'
+>>>>>>> 148b6186b70fce90e9d3b830094bb97c70a2f40f
+    with:
+      ref: "${{ github.ref_name }}" # this is the target branch name, Ex: "main"
+      src_repo: "${{ github.repository }}"
+      dest_repo: "${{ github.repository }}-security-mirror"
+      patch_repo: "${{ github.repository }}-security-patches"
+    secrets: inherit
+
