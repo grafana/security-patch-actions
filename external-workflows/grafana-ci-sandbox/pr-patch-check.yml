@@ -3,17 +3,11 @@
 name: Check for patch conflicts
 run-name: check-patch-conflicts-${{ github.base_ref }}-${{ github.head_ref }}
 on:
-<<<<<<< HEAD
   pull_request:
     types:
       - opened
       - reopened
       - synchronize
-=======
-  pull_request_target:
-    types:
-      - opened
->>>>>>> 148b6186b70fce90e9d3b830094bb97c70a2f40f
     branches:
       - "main"
       - "v*.*.*"
@@ -23,11 +17,7 @@ on:
 # target branch onto the source branch, to verify compatibility before merging.
 jobs:
   trigger_downstream_patch_check:
-<<<<<<< HEAD
     uses: grafana/security-patch-actions/.github/workflows/test-patches.yml@develop
-=======
-    uses: grafana/security-patch-actions/.github/workflows/test-patches.yml@main
->>>>>>> 148b6186b70fce90e9d3b830094bb97c70a2f40f
     with:
       src_repo: "${{ github.repository }}"
       src_ref: "${{ github.head_ref }}" # this is the source branch name, Ex: "feature/newthing"
