@@ -89,6 +89,7 @@ jobs:
         working-directory: src
         run: |
           git fetch origin ${PATCH_REF} # We only cloned ref, so need to fetch the patch_ref
+          git pull origin ${PATCH_REF}
 
       - name: Set patch name
         id: patch_name
