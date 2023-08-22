@@ -106,8 +106,11 @@ jobs:
           git config --local user.name ${GIT_USER}
           git config --local user.email ${GIT_USER_EMAIL}
 
+          git status
+          git remote -v 
           # Set patch filename
           # Create patch
+          git format-patch ${PATCH_REF} --stdout
           git format-patch ${PATCH_REF} --stdout > ${PATCH_NAME}
 
       - name: Push patch
