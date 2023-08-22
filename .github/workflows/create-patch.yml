@@ -86,6 +86,7 @@ jobs:
           token: ${{ steps.generate_token.outputs.token }}
 
       - name: Fetch ${{ inputs.patch_ref }}
+        working-dir: src
         run: |
           git fetch origin ${PATCH_REF} # We only cloned ref, so need to fetch the patch_ref
 
