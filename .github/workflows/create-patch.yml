@@ -59,7 +59,7 @@ env:
   GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
 
 jobs:
-  deploy-patch:
+  create-patch:
     runs-on: ubuntu-latest
     steps:
       - name: "Generate token"
