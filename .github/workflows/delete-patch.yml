@@ -68,5 +68,7 @@ jobs:
           echo Removing ${PATCH_REF}/${PATCH_NAME}
           rm ${PATCH_REF}/${PATCH_NAME}
           
+          git add ${PATCH_REF}/${PATCH_NAME}
           git status
-          git diff
+          git commit -m "Removing ${PATCH_REF}/${PATCH_NAME}"
+          git push origin main
