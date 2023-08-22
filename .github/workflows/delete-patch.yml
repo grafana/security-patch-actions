@@ -1,0 +1,71 @@
+name: Delete Security Patch
+run-name: delete-patch-${{ inputs.repo }}-${{ inputs.ref }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      patch_repo:
+        required: true
+        type: string
+        description: "The name of the repository where the patch is saved. Ex: grafana/grafana-security-patches"
+      patch_ref:
+        required: true
+        type: string
+        description: "The name of the branch that the patch applies to. Also the name of the folder in the patch_repo where the patch is located."
+      patch_name:
+        required: true
+        type: string
+        description: "The name of the patch to delete."
+  workflow_call:
+    inputs:
+      patch_repo:
+        required: true
+        type: string
+        description: "The name of the repository where the patch is saved. Ex: grafana/grafana-security-patches"
+      patch_ref:
+        required: true
+        type: string
+        description: "The name of the branch that the patch applies to. Also the name of the folder in the patch_repo where the patch is located."
+      patch_name:
+        required: true
+        type: string
+        description: "The name of the patch to delete."
+
+
+
+env:
+  PATCH_REPO: ${{ inputs.patch_repo }}
+  PATCH_REF: ${{ inputs.patch_ref }}
+  PATCH_NAME: ${{ inputs.patch_name }}
+  GIT_USER: "github-actions[bot]"
+  GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
+
+
+jobs:
+  delete-patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Generate token"
+        id: generate_token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+        with:
+          app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
+          private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
+      - name: "Checkout patch repo"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.patch_repo }}
+          path: patches 
+          token: ${{ steps.generate_token.outputs.token }}
+      - name: "Delete patch"
+        run: |
+          # Tell git who we are
+          git config --local user.name ${GIT_USER}
+          git config --local user.email ${GIT_USER_EMAIL}
+
+          # Delete patch
+          echo Removing ${PATCH_REF}/${PATCH_NAME}
+          rm ${PATCH_REF}/${PATCH_NAME}
+          
+          git status
+          git diff
