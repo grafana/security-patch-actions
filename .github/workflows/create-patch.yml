@@ -96,7 +96,7 @@ jobs:
           # Set patch filename
           echo "PATCH_NAME=${PATCH_PREFIX}-$(date '+%Y%m%d%H%M').patch" >> $GITHUB_OUTPUT
           # Create patch
-          git format-patch ${PATCH_REF} --stdout > ../${PATCH_NAME}
+          git format-patch ${PATCH_REF} --stdout > ${PATCH_NAME}
 
       - name: Push patch
         working-directory: patches
@@ -105,6 +105,6 @@ jobs:
           git config --local user.name ${GIT_USER}
           git config --local user.email ${GIT_USER_EMAIL}
 
-          cp ../${PATCH_NAME} ./${PATCH_REF}
+          cp ../src/${PATCH_NAME} ./${PATCH_REF}/${PATCH_NAME}
           git status; 
           git diff;
