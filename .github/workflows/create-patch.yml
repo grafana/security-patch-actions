@@ -102,6 +102,7 @@ jobs:
           git remote -v 
           # Set patch filename
           # Create patch
+          git fetch origin ${PATCH_REF}
           git format-patch ${PATCH_REF} --stdout
           git format-patch ${PATCH_REF} --stdout > ${PATCH_NAME}
 
