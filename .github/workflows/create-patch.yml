@@ -85,6 +85,10 @@ jobs:
           path: src 
           token: ${{ steps.generate_token.outputs.token }}
 
+      - name: Fetch ${{ inputs.patch_ref }}
+        run: |
+          git fetch origin ${PATCH_REF} # We only cloned ref, so need to fetch the patch_ref
+
       - name: Set patch name
         id: patch_name
         run: |
@@ -100,7 +104,6 @@ jobs:
 
           # Set patch filename
           # Create patch
-          git fetch origin ${PATCH_REF} # We only cloned ref, so need to fetch the patch_ref
           git format-patch origin/${PATCH_REF} --stdout > ${PATCH_NAME}
 
       - name: Push patch
@@ -110,6 +113,9 @@ jobs:
           git config --local user.name ${GIT_USER}
           git config --local user.email ${GIT_USER_EMAIL}
 
+          mkdir -p ${PATCH_REF} 
           cp ../src/${PATCH_NAME} ./${PATCH_REF}/${PATCH_NAME}
-          git status; 
-          git diff;
+          git add ${PATCH_REF}/
+          git status
+          git commit -m "Creating Security Patch ${PATCH_REF}/${PATCH_NAME}"
+          git push origin main
