@@ -1,5 +1,5 @@
 name: Delete Security Patch
-run-name: delete-patch-${{ inputs.repo }}-${{ inputs.ref }}
+run-name: delete-patch-${{ inputs.patch_ref }}-${{ inputs.patch_name }}
 
 on:
   workflow_dispatch:
@@ -51,12 +51,14 @@ jobs:
         with:
           app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
+
       - name: "Checkout patch repo"
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.patch_repo }}
           path: patches 
           token: ${{ steps.generate_token.outputs.token }}
+
       - name: "Delete patch"
         working-directory: patches
         run: |

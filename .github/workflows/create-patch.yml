@@ -1,5 +1,5 @@
 name: Create Security Patch
-run-name: create-patch-${{ inputs.repo }}-${{ inputs.ref }}
+run-name: create-patch-${{ inputs.ref }}-to-${{ inputs.patch_ref }}
 
 on:
   workflow_dispatch:
@@ -106,7 +106,7 @@ jobs:
           git format-patch origin/${PATCH_REF} --stdout
           git format-patch origin/${PATCH_REF} --stdout > ${PATCH_NAME}
 
-      - name: Push patch
+      - name: "Push patch"
         working-directory: patches
         run: |
           # Tell git who we are
