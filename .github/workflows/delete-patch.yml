@@ -58,6 +58,7 @@ jobs:
           path: patches 
           token: ${{ steps.generate_token.outputs.token }}
       - name: "Delete patch"
+        working-directory: patches
         run: |
           # Tell git who we are
           git config --local user.name ${GIT_USER}
