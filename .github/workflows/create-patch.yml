@@ -7,7 +7,7 @@ on:
       ref:
         required: true
         type: string
-        description: "The branch name that the patch will be applied to. Ex: main"
+        description: "The branch name that the patch was created from. Ex: feature/somethingnew"
       repo:
         required: true
         type: string
@@ -21,15 +21,16 @@ on:
         type: string
         description: "The name of the ref to which the patch should be applied. Ex: main"
       patch_prefix:
-        required: true
+        required: false
         type: string
-        description: "Patch name prefix."
+        default: "security-patch"
+        description: "Patch name prefix. Default: security-patch"
   workflow_call:
     inputs:
       ref:
         required: true
         type: string
-        description: "The branch name that the patch will be built from. The source branch of the merge request."
+        description: "The branch name that the patch was created from. Ex: feature/somethingnew"
       repo:
         required: true
         type: string
@@ -43,9 +44,10 @@ on:
         type: string
         description: "The name of the ref to which the patch should be applied. Ex: main"
       patch_prefix:
-        required: true
+        required: false
         type: string
-        description: "Patch name prefix."
+        default: "security-patch"
+        description: "Patch name prefix. Default: security-patch"
 
 env:
   REF: ${{ inputs.ref }}

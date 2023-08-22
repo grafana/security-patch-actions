@@ -1,0 +1,18 @@
+# Owned by grafana-delivery-squad
+# Intended to be dropped into the base repo Ex: grafana/grafana
+name: Check for patch conflicts
+run-name: check-patch-conflicts-${{ github.base_ref }}-${{ github.head_ref }}
+on: push
+
+# Since this is run on a pull request, we want to apply the patches intended for the
+# target branch onto the source branch, to verify compatibility before merging.
+jobs:
+  trigger_downstream_patch_check:
+    uses: grafana/security-patch-actions/.github/workflows/create-patch.yml@develop
+    with:
+      repo: "grafana/grafana-ci-sandbox-security-mirror"
+      ref: "rickytest" 
+      patch_repo: "grafana-ci-sandbox-security-patches"
+      patch_ref: "main"
+      patch_prefix: "rickytest-security-patch" 
+    secrets: inherit
