@@ -100,7 +100,7 @@ jobs:
 
           # Set patch filename
           # Create patch
-          git fetch ${PATCH_REF} # We only cloned ref, so need to fetch the patch_ref
+          git fetch origin ${PATCH_REF} # We only cloned ref, so need to fetch the patch_ref
           git format-patch ${PATCH_REF} --stdout > ${PATCH_NAME}
 
       - name: Push patch

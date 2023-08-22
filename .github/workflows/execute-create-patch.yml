@@ -2,7 +2,6 @@
 # Intended to be dropped into the base repo Ex: grafana/grafana
 name: rickytest
 run-name: rickytest
-on: push
 
 # Since this is run on a pull request, we want to apply the patches intended for the
 # target branch onto the source branch, to verify compatibility before merging.
