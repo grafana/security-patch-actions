@@ -103,8 +103,8 @@ jobs:
           # Set patch filename
           # Create patch
           git fetch origin ${PATCH_REF}
-          git format-patch ${PATCH_REF} --stdout
-          git format-patch ${PATCH_REF} --stdout > ${PATCH_NAME}
+          git format-patch origin/${PATCH_REF} --stdout
+          git format-patch origin/${PATCH_REF} --stdout > ${PATCH_NAME}
 
       - name: Push patch
         working-directory: patches

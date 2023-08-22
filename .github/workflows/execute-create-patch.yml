@@ -1,7 +1,7 @@
 # Owned by grafana-delivery-squad
 # Intended to be dropped into the base repo Ex: grafana/grafana
-name: rickytest
-run-name: rickytest
+name: Create Patch
+run-name: create-patch
 on: push
 
 # Since this is run on a pull request, we want to apply the patches intended for the
