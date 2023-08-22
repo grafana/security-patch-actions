@@ -84,6 +84,10 @@ jobs:
           ref: ${{ inputs.ref }}
           path: src 
           token: ${{ steps.generate_token.outputs.token }}
+
+      - name: Set patch name
+        run: |
+          echo "patch_name=${PATCH_PREFIX}-$(date '+%Y%m%d%H%M').patch" >> $GITHUB_OUTPUT
       
       - name: "Create patch"
         id: patch
@@ -94,9 +98,8 @@ jobs:
           git config --local user.email ${GIT_USER_EMAIL}
 
           # Set patch filename
-          echo "PATCH_NAME=${PATCH_PREFIX}-$(date '+%Y%m%d%H%M').patch" >> $GITHUB_OUTPUT
           # Create patch
-          git format-patch ${PATCH_REF} --stdout > ${PATCH_NAME}
+          git format-patch ${PATCH_REF} --stdout > ${{ env.patch_name }}
 
       - name: Push patch
         working-directory: patches
@@ -105,6 +108,6 @@ jobs:
           git config --local user.name ${GIT_USER}
           git config --local user.email ${GIT_USER_EMAIL}
 
-          cp ../src/${PATCH_NAME} ./${PATCH_REF}/${PATCH_NAME}
+          cp ../src/${{ env.patch_name }} ./${PATCH_REF}/${{ env.patch_name }}
           git status; 
           git diff;
