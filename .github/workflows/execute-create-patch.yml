@@ -1,7 +1,7 @@
 # Owned by grafana-delivery-squad
 # Intended to be dropped into the base repo Ex: grafana/grafana
-name: Check for patch conflicts
-run-name: check-patch-conflicts-${{ github.base_ref }}-${{ github.head_ref }}
+name: rickytest
+run-name: rickytest
 on: push
 
 # Since this is run on a pull request, we want to apply the patches intended for the
@@ -12,7 +12,7 @@ jobs:
     with:
       repo: "grafana/grafana-ci-sandbox-security-mirror"
       ref: "rickytest" 
-      patch_repo: "grafana-ci-sandbox-security-patches"
+      patch_repo: "grafana/grafana-ci-sandbox-security-patches"
       patch_ref: "main"
       patch_prefix: "rickytest-security-patch" 
     secrets: inherit
