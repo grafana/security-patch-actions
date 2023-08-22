@@ -84,22 +84,14 @@ jobs:
           ref: ${{ inputs.ref }}
           path: src 
           token: ${{ steps.generate_token.outputs.token }}
+          fetch-depth: 0
 
-      - name: Fetch ${{ inputs.patch_ref }}
-        working-directory: src
-        run: |
-          git fetch origin ${PATCH_REF} # We only cloned ref, so need to fetch the patch_ref
-          git checkout ${PATCH_REF}
-          git pull origin ${PATCH_REF}
-          git checkout ${REF}
-
-      - name: Set patch name
+      - name: "Set patch name"
         id: patch_name
         run: |
           echo "PATCH_NAME=${PATCH_PREFIX}-$(date '+%Y%m%d%H%M').patch" >> $GITHUB_ENV
       
       - name: "Create patch"
-        id: patch
         working-directory: src
         run: |
           # Tell git who we are
