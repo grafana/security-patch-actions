@@ -49,6 +49,7 @@ on:
         default: "security-patch"
         description: "Patch name prefix. Default: security-patch"
 
+concurrency: "${{ inputs.ref }}-${{ inputs.repo }}"
 env:
   REF: ${{ inputs.ref }}
   REPO: ${{ inputs.repo }}

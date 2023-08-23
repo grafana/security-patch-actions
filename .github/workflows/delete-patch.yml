@@ -32,7 +32,7 @@ on:
         description: "The name of the patch to delete."
 
 
-
+concurrency: "${{ inputs.patch_ref }}-${{ inputs.patch_repo }}"
 env:
   PATCH_REPO: ${{ inputs.patch_repo }}
   PATCH_REF: ${{ inputs.patch_ref }}

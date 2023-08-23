@@ -46,6 +46,8 @@ on:
         required: false
         type: boolean
         default: false
+
+concurrency: "${{ inputs.ref }}-${{ inputs.src_repo }}"
 env:
   SRC_REPO: ${{ inputs.src_repo }}
   DEST_REPO: ${{ inputs.dest_repo }}

@@ -24,10 +24,12 @@ on:
       dest_repo:
         required: true
         type: string
+
+concurrency: "${{ inputs.tag }}-${{ inputs.src_repo }}"
 env:
   SRC_REPO: ${{ inputs.src_repo }}
   DEST_REPO: ${{ inputs.dest_repo }}
-  REF: ${{ inputs.ref }}
+  TAG: ${{ inputs.tag }}
   GIT_USER: "github-actions[bot]"
   GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
 
@@ -46,7 +48,7 @@ jobs:
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.src_repo }}
-          tag: ${{ inputs.ref }}
+          ref: ${{ inputs.tag }}
           path: src
           token: ${{ steps.generate_token.outputs.token }}
           fetch-depth: 0
