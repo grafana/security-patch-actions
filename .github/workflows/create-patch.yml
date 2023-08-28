@@ -1,25 +1,25 @@
 name: Create Security Patch
-run-name: create-patch-${{ inputs.ref }}-to-${{ inputs.patch_ref }}
+run-name: create-patch-${{ inputs.src_ref }}-to-${{ inputs.patch_ref }}
 
 on:
   workflow_dispatch:
     inputs:
-      ref:
-        required: true
-        type: string
-        description: "The branch name that the patch was created from. Ex: feature/somethingnew"
       repo:
         required: true
         type: string
         description: "The name of the repository that the patch is being built from. Ex: grafana/grafana-security-mirror"
-      patch_repo:
+      src_ref:
         required: true
         type: string
-        description: "The name of the repository where the patch will be saved. Ex: grafana/grafana-security-patches"
+        description: "The branch name that the patch was created from. Ex: feature/somethingnew"
       patch_ref:
         required: true
         type: string
         description: "The name of the ref to which the patch should be applied. Ex: main"
+      patch_repo:
+        required: true
+        type: string
+        description: "The name of the repository where the patch will be saved. Ex: grafana/grafana-security-patches"
       patch_prefix:
         required: false
         type: string
@@ -27,31 +27,31 @@ on:
         description: "Patch name prefix. Default: security-patch"
   workflow_call:
     inputs:
-      ref:
-        required: true
-        type: string
-        description: "The branch name that the patch was created from. Ex: feature/somethingnew"
       repo:
         required: true
         type: string
         description: "The name of the repository that the patch is being built from. Ex: grafana/grafana-security-mirror"
-      patch_repo:
+      src_ref:
         required: true
         type: string
-        description: "The name of the repository where the patch will be saved. Ex: grafana/grafana-security-patches"
+        description: "The branch name that the patch was created from. Ex: feature/somethingnew"
       patch_ref:
         required: true
         type: string
         description: "The name of the ref to which the patch should be applied. Ex: main"
+      patch_repo:
+        required: true
+        type: string
+        description: "The name of the repository where the patch will be saved. Ex: grafana/grafana-security-patches"
       patch_prefix:
         required: false
         type: string
         default: "security-patch"
         description: "Patch name prefix. Default: security-patch"
 
-concurrency: "${{ inputs.ref }}-${{ inputs.repo }}"
+concurrency: "${{ inputs.src_ref }}-${{ inputs.repo }}"
 env:
-  REF: ${{ inputs.ref }}
+  SRC_REF: ${{ inputs.src_ref }}
   REPO: ${{ inputs.repo }}
   PATCH_REPO: ${{ inputs.patch_repo }}
   PATCH_REF: ${{ inputs.patch_ref }}
@@ -82,7 +82,7 @@ jobs:
         uses: actions/checkout@v3
         with: 
           repository: ${{ inputs.repo }}
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.src_ref }}
           path: src 
           token: ${{ steps.generate_token.outputs.token }}
           fetch-depth: 0
