@@ -21,5 +21,6 @@ jobs:
       src_ref: "${{ github.head_ref }}" # this is the source branch name, Ex: "feature/newthing"
       patch_ref: "${{ github.base_ref }}" # this is the target branch name, Ex: "main"
       patch_repo: "grafana-ci-sandbox-security-patches"
+      patch_prefix: "${{ github.head_ref }}"
     secrets: inherit
 
