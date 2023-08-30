@@ -107,7 +107,7 @@ jobs:
           git format-patch origin/${PATCH_REF} --stdout
           git format-patch origin/${PATCH_REF} --stdout > ${PATCH_NAME}
 
-      - name: "Push patch"
+      - name: "Commit patch"
         working-directory: patches
         run: |
           # Tell git who we are
@@ -116,7 +116,17 @@ jobs:
 
           mkdir -p ${PATCH_REF} 
           cp ../src/${PATCH_NAME} ./${PATCH_REF}/${PATCH_NAME}
+          git checkout -b ${PATCH_NAME}
           git add ${PATCH_REF}/
           git status
           git commit -m "Creating Security Patch ${PATCH_REF}/${PATCH_NAME}"
-          git push origin main
+
+      - name: "Create pull request for patch"
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+          path: patches
+          branch: ${{ inputs.patch_name }}
+          title: Create security patch ${{ inputs.patch_name }}
+          body: Create security patch ${{ inputs.patch_name }}
+
