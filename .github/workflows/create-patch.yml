@@ -116,18 +116,18 @@ jobs:
 
           mkdir -p ${PATCH_REF} 
           cp ../src/${PATCH_NAME} ./${PATCH_REF}/${PATCH_NAME}
-          git checkout -b ${PATCH_NAME}
+          git checkout -b ${SRC_REF}
           git add ${PATCH_REF}/
           git status
           git commit -m "Creating Security Patch ${PATCH_REF}/${PATCH_NAME}"
-          git push origin ${PATCH_NAME}
+          git push origin ${SRC_REF}
 
       - name: "Create pull request for patch"
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ steps.generate_token.outputs.token }}
           path: patches
-          branch: ${{ inputs.patch_name }}
+          branch: ${{ inputs.src_ref }}
           title: Create security patch ${{ inputs.patch_name }}
           body: Create security patch ${{ inputs.patch_name }}
 
