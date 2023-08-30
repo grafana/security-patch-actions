@@ -121,6 +121,7 @@ jobs:
           git status
           git commit -m "Creating Security Patch ${PATCH_REF}/${PATCH_NAME}"
           git push origin ${SRC_REF}
+          git checkout main
 
       - name: "Create pull request for patch"
         uses: peter-evans/create-pull-request@v5
