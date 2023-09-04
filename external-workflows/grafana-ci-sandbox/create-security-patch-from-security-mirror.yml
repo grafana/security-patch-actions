@@ -3,9 +3,11 @@
 name: Create security patch
 run-name: create-security-patch
 on:
-  pull_request_review:
+  pull_request:
     types:
-      - submitted
+      - opened
+      - reopened
+      - synchronize
     branches:
       - "main"
       - "v*.*.*"
@@ -20,7 +22,6 @@ jobs:
       repo: "${{ github.repository }}"
       src_ref: "${{ github.head_ref }}" # this is the source branch name, Ex: "feature/newthing"
       patch_ref: "${{ github.base_ref }}" # this is the target branch name, Ex: "main"
-      patch_repo: "grafana-ci-sandbox-security-patches"
-      patch_prefix: "${{ github.head_ref }}"
+      patch_repo: "grafana/grafana-ci-sandbox-security-patches"
     secrets: inherit
 
