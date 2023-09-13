@@ -31,7 +31,7 @@ on:
         required: true
         type: string
 
-concurrency: "${{ inputs.ref }}-${{ input.dest_repo }}"
+concurrency: "${{ inputs.ref }}-${{ inputs.dest_repo }}"
 env:
   DEST_REPO: ${{ inputs.dest_repo }}
   PATCH_REPO: ${{ inputs.patch_repo }}
