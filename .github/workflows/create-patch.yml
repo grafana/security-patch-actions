@@ -126,6 +126,6 @@ jobs:
           token: ${{ steps.generate_token.outputs.token }}
           path: patches
           branch: ${{ inputs.src_ref }}
-          title: Create security patch ${{ inputs.patch_name }}
-          body: Create security patch ${{ inputs.patch_name }}
+          title: Create security patch ${{ env.PATCH_NAME }}
+          body: Create security patch ${{ env.PATCH_NAME }}
 
