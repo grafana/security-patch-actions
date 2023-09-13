@@ -81,6 +81,19 @@ jobs:
           fi
           echo Patches applied.
 
+      - name: Delete patch
+        working-directory: patches
+        run: |
+          # Tell git who we are
+          git config --local user.name ${GIT_USER}
+          git config --local user.email ${GIT_USER_EMAIL}
+
+          # Delete patch
+          rm ${REF}/${PATCH_NAME}
+          git add ${REF}
+          git commit -m "Deleting patch ${REF}/${PATCH_NAME}"
+          git push origin main
+
       - name: Handle patch failure
         if: ${{ failure() && steps.patches.conclusion == 'failure' }}
         run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches to the mirror. See the documentation here for how to resolve this error."
