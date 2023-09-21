@@ -7,45 +7,57 @@ on:
       ref:
         required: true
         type: string
+        description: "The branch name to mirror. Ex: main"
       src_repo:
         required: true
         type: string
+        description: "The repository name to mirror from. Ex: grafana/grafana"
       dest_repo:
         required: true
         type: string
+        description: "The repository name to mirror to. Ex: grafana/grafana-security-mirror"
       patch_repo:
         required: true
         type: string
+        description: "The repository name where the patch will be saved. Ex: grafana/grafana-security-patches"
       patch_dir:
         required: false
         type: string
+        description: "The branch name that the patch will be applied to. Ex: main"
       # with_conflicts is used to apply the patches using a 3way merge strategy (git am --3way). This will apply the patches in the event of a conflict
       # This should only be used when handling events where conflicts want to be seen.
       with_conflicts:
         required: false
         type: boolean
         default: false
+        description: "Applies merge conflicts to the `patch_dir` branch of the `dest_repo` repository."
   workflow_call:
     inputs:
       ref:
         required: true
         type: string
+        description: "The branch name to mirror. Ex: main"
       src_repo:
         required: true
         type: string
+        description: "The repository name to mirror from. Ex: grafana/grafana"
       dest_repo:
         required: true
         type: string
+        description: "The repository name to mirror to. Ex: grafana/grafana-security-mirror"
       patch_repo:
         required: true
         type: string
+        description: "The repository name where the patch will be saved. Ex: grafana/grafana-security-patches"
       patch_dir:
         required: false
         type: string
+        description: "The branch name that the patch will be applied to. Ex: main"
       with_conflicts:
         required: false
         type: boolean
         default: false
+        description: "Applies merge conflicts to the `patch_dir` branch of the `dest_repo` repository."
 
 concurrency: "${{ inputs.ref }}-${{ inputs.src_repo }}"
 env:

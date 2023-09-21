@@ -7,7 +7,7 @@ on:
       repo:
         required: true
         type: string
-        description: "The name of the repository that the patch is being built from. Ex: grafana/grafana-security-mirror"
+        description: "The repository name that the patch is being built from. Ex: grafana/grafana-security-mirror"
       src_ref:
         required: true
         type: string
@@ -15,11 +15,11 @@ on:
       patch_ref:
         required: true
         type: string
-        description: "The name of the ref to which the patch should be applied. Ex: main"
+        description: "The branch name to which the patch should be applied. Ex: main"
       patch_repo:
         required: true
         type: string
-        description: "The name of the repository where the patch will be saved. Ex: grafana/grafana-security-patches"
+        description: "The repository name where the patch will be saved. Ex: grafana/grafana-security-patches"
       patch_prefix:
         required: false
         type: string
@@ -30,7 +30,7 @@ on:
       repo:
         required: true
         type: string
-        description: "The name of the repository that the patch is being built from. Ex: grafana/grafana-security-mirror"
+        description: "The repository name that the patch is being built from. Ex: grafana/grafana-security-mirror"
       src_ref:
         required: true
         type: string
@@ -38,11 +38,11 @@ on:
       patch_ref:
         required: true
         type: string
-        description: "The name of the ref to which the patch should be applied. Ex: main"
+        description: "The branch name to which the patch should be applied. Ex: main"
       patch_repo:
         required: true
         type: string
-        description: "The name of the repository where the patch will be saved. Ex: grafana/grafana-security-patches"
+        description: "The repository name where the patch will be saved. Ex: grafana/grafana-security-patches"
       patch_prefix:
         required: false
         type: string
@@ -104,7 +104,6 @@ jobs:
           # Set patch filename
           # Create patch
           git fetch origin ${PATCH_REF}
-          git format-patch origin/${PATCH_REF} --stdout
           git format-patch origin/${PATCH_REF} --stdout > ${PATCH_NAME}
 
       - name: "Commit patch"
