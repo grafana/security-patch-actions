@@ -13,8 +13,8 @@ All scripts are hard-coded to run against `grafana/grafana-ci-sandbox`.
 
 ## Testing
 
-There are a set of scripts in test-scripts that can help to test against grafana-ci-sandbox.
-They assume that you have the following 3 repos cloned:
+There are a set of scripts in test-scripts that can help to test against grafana-ci-sandbox, using the develop branch of this project.
+They assume that you have the following 3 repos cloned in the same directory that you have the `security-patch-actions` repo cloned to:
 
 - `grafana/grafana-ci-sandbox`
 - `grafana/grafana-ci-sandbox-security-mirror`
@@ -22,8 +22,27 @@ They assume that you have the following 3 repos cloned:
 
 All Bash scripts are hard coded to run against `grafana/grafana-ci-sandbox`.
 
+### Setup test env 
+- `setup-branch.sh <branch>` sets up grafana-ci-sandbox to run against the develop branch of this repo.
+- `create-grafana-ci-sandbox-pr.sh <branch>` creates a PR in grafana-ci-sandbox to the branch supplied (default: main)
+- `create-grafana-ci-sandbox-security-mirror-pr.sh <branch>` creates a PR in grafana-ci-sandbox-security mirror to the branch supplied (default: main)
+- `create-merge-conflict-pr.sh <branch>` will create a PR to grafana-ci-sandbox that will conflict with the PR created by `create-grafana-ci-sandbox-security-mirror-pr.sh`, for testing conflicts
+
 
 ## Provided actions
+
+### `create-patch.yml`
+
+Creates a git patch from the diff between one branch and another, and uploads it to a patch repository. Meant to create security patches from pull requests.
+
+```
+gh workflow run --repo grafana/security-patch-actions create-patch.yml \
+    -f repo=grafana/grafana-ci-sandbox-security-mirror \
+    -f patch_repo=grafana/grafana-ci-sandbox-security-patches \
+    -f src_ref=<myBranchName> \
+    -f patch_ref=v10.1.x \
+    -f patch_prefix=<myPrefix>
+```
 
 ### `deploy-patch.yml`
 
@@ -37,8 +56,19 @@ gh workflow run --repo grafana/security-patch-actions deploy-patch.yml \
     -f ref=v10.1.x \
     -f patch_name=my-patch.patch
 ```
+### `mirror-branch.yml`
 
+Used for mirroring a single branch from a source repository over to a specific destination repository.
+There is also an optional input called `with_conficts` which will also include conflicting files in the patch commit of the destination repository.
+This should allow testing of conflicting patches in a low-risk environment.
+Note that this will execute a force-push and therefore overwrite existing changes in the destination repository.
 
+```
+gh workflow run --repo grafana/security-patch-actions mirror-branch.yml \
+    -f src_repo=grafana/grafana-ci-sandbox \
+    -f dest_repo=grafana/grafana-ci-sandbox-security-mirror \
+    -f ref=v10.1.x
+```
 ### `mirror-branch-and-apply-patches.yml`
 
 Mirrors a specific branch from the source repository to the destination repository and applies all the patches that are relevant for that branch.
@@ -51,24 +81,6 @@ gh workflow run --repo grafana/security-patch-actions mirror-branch-and-apply-pa
     -f ref=v10.1.x
 ```
 
-There is also an optional input called `with_conficts` which will also include conflicting files in the patch commit of the destination repository.
-This should allow testing of conflicting patches in a low-risk environment.
-
-
-### `mirror-branch.yml`
-
-Used for mirroring a single branch from a source repository over to a specific destination repository.
-
-```
-gh workflow run --repo grafana/security-patch-actions mirror-branch.yml \
-    -f src_repo=grafana/grafana-ci-sandbox \
-    -f dest_repo=grafana/grafana-ci-sandbox-security-mirror \
-    -f ref=v10.1.x
-```
-
-Note that this will execute a force-push and therefore overwrite existing changes in the destination repository.
-
-
 ### `mirror-tag.yml`
 
 Used for mirroring a single tag from a source repository over to a specific destination repository.
@@ -79,7 +91,6 @@ gh workflow run --repo grafana/security-patch-actions mirror-tag.yml \
     -f dest_repo=grafana/grafana-ci-sandbox-security-mirror \
     -f ref=v10.0.3
 ```
-
 
 ### `test-patches.yml`
 
@@ -98,12 +109,16 @@ gh workflow run --repo grafana/security-patch-actions test-patches.yml \
 
 These are templates you can drop into your project's workflows to enable mirroring to a `${REPO_OWNER}/${REPO_NAME}-security-mirror` repository.
 
-### `pr-security-patch-check.yml`
+### `create-security-patch-from-security-mirror.yml`
 
-Runs the `test-patches.yml` action against a newly created pull-request targetting a release branch (or main).
+Runs the `create-patch.yml` action against a pull-request targeting a version branch or main in the security-mirror.
+
+### `pr-patch-check.yml`
+
+Runs the `test-patches.yml` action against a newly created pull-request targeting a release branch (or main).
 It expects the security patches to be stored inside a `${REPO_OWNER}/${REPO_NAME}-security-patches` repository.
 
-### `pr-security-patch-mirror-and-apply.yml`
+### `sync-mirror.yml`
 
 Runs the `mirror-branch-and-apply-patches.yml` workflow when a pull-request is closed that targets a release branch (or main).
 It expects the security patches to be stored inside a `${REPO_OWNER}/${REPO_NAME}-security-patches` repository and the mirror to be available in `${REPO_OWNER}/${REPO_NAME}-security-mirror`.
