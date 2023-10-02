@@ -7,30 +7,39 @@ on:
       ref:
         required: true
         type: string
+        description: "The branch name that the patch will be applied to. Ex: main"
       dest_repo:
         required: true
         type: string
+        description: "The repository name that the patch will be applied to. Ex: grafana/grafana"
       patch_repo:
         required: true
         type: string
+        description: "The repository name where the patch is saved. Ex: grafana/grafana-security-patches"
       patch_name:
         required: true
         type: string
+        description: "The name of the patch to deploy. Ex: security-patch-202330713.patch"
   workflow_call:
     inputs:
       ref:
         required: true
         type: string
+        description: "The branch name that the patch will be applied to. Ex: main"
       dest_repo:
         required: true
         type: string
+        description: "The repository name that the patch will be applied to. Ex: grafana/grafana"
       patch_repo:
         required: true
         type: string
+        description: "The repository name where the patch is saved. Ex: grafana/grafana-security-patches"
       patch_name:
         required: true
         type: string
+        description: "The name of the patch to deploy. Ex: security-patch-202330713.patch"
 
+concurrency: "${{ inputs.ref }}-${{ inputs.dest_repo }}"
 env:
   DEST_REPO: ${{ inputs.dest_repo }}
   PATCH_REPO: ${{ inputs.patch_repo }}
@@ -79,6 +88,19 @@ jobs:
             git am --committer-date-is-author-date -q ../patches/${REF}/${PATCH_NAME} > /dev/null 2>&1
           fi
           echo Patches applied.
+
+      - name: Delete patch
+        working-directory: patches
+        run: |
+          # Tell git who we are
+          git config --local user.name ${GIT_USER}
+          git config --local user.email ${GIT_USER_EMAIL}
+
+          # Delete patch
+          rm ${REF}/${PATCH_NAME}
+          git add ${REF}
+          git commit -m "Deleting patch ${REF}/${PATCH_NAME}"
+          git push origin main
 
       - name: Handle patch failure
         if: ${{ failure() && steps.patches.conclusion == 'failure' }}

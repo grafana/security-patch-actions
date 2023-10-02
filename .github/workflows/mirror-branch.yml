@@ -7,23 +7,31 @@ on:
       ref:
         required: true
         type: string
+        description: "The branch name to mirror. Ex: main"
       src_repo:
         required: true
         type: string
+        description: "The repository name to mirror from. Ex: grafana/grafana"
       dest_repo:
         required: true
         type: string
+        description: "The repository name to mirror to. Ex: grafana/grafana-security-mirror"
   workflow_call:
     inputs:
       ref:
         required: true
         type: string
+        description: "The branch name to mirror. Ex: main"
       src_repo:
         required: true
         type: string
+        description: "The repository name to mirror from. Ex: grafana/grafana"
       dest_repo:
         required: true
         type: string
+        description: "The repository name to mirror to. Ex: grafana/grafana-security-mirror"
+
+concurrency: "${{ inputs.ref }}-${{ inputs.src_repo }}"
 env:
   SRC_REPO: ${{ inputs.src_repo }}
   DEST_REPO: ${{ inputs.dest_repo }}

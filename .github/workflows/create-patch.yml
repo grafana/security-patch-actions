@@ -1,0 +1,130 @@
+name: Create Security Patch
+run-name: create-patch-${{ inputs.src_ref }}-to-${{ inputs.patch_ref }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        required: true
+        type: string
+        description: "The repository name that the patch is being built from. Ex: grafana/grafana-security-mirror"
+      src_ref:
+        required: true
+        type: string
+        description: "The branch name that the patch was created from. Ex: feature/somethingnew"
+      patch_ref:
+        required: true
+        type: string
+        description: "The branch name to which the patch should be applied. Ex: main"
+      patch_repo:
+        required: true
+        type: string
+        description: "The repository name where the patch will be saved. Ex: grafana/grafana-security-patches"
+      patch_prefix:
+        required: false
+        type: string
+        default: "security-patch"
+        description: "Patch name prefix. Default: security-patch"
+  workflow_call:
+    inputs:
+      repo:
+        required: true
+        type: string
+        description: "The repository name that the patch is being built from. Ex: grafana/grafana-security-mirror"
+      src_ref:
+        required: true
+        type: string
+        description: "The branch name that the patch was created from. Ex: feature/somethingnew"
+      patch_ref:
+        required: true
+        type: string
+        description: "The branch name to which the patch should be applied. Ex: main"
+      patch_repo:
+        required: true
+        type: string
+        description: "The repository name where the patch will be saved. Ex: grafana/grafana-security-patches"
+      patch_prefix:
+        required: false
+        type: string
+        default: "security-patch"
+        description: "Patch name prefix. Default: security-patch"
+
+concurrency: "${{ inputs.src_ref }}-${{ inputs.repo }}"
+env:
+  SRC_REF: ${{ inputs.src_ref }}
+  REPO: ${{ inputs.repo }}
+  PATCH_REPO: ${{ inputs.patch_repo }}
+  PATCH_REF: ${{ inputs.patch_ref }}
+  PATCH_PREFIX: ${{ inputs.patch_prefix }}
+  GIT_USER: "github-actions[bot]"
+  GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
+
+jobs:
+  create-patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Generate token"
+        id: generate_token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+        with:
+          app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
+          private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
+
+      - name: "Checkout patch repo"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.patch_repo }}
+          path: patches 
+          ref: main
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: "Checkout repo"
+        uses: actions/checkout@v3
+        with: 
+          repository: ${{ inputs.repo }}
+          ref: ${{ inputs.src_ref }}
+          path: src 
+          token: ${{ steps.generate_token.outputs.token }}
+          fetch-depth: 0
+
+      - name: "Set patch name"
+        id: patch_name
+        run: |
+          echo "PATCH_NAME=${PATCH_PREFIX}-$(date '+%Y%m%d%H%M').patch" >> $GITHUB_ENV
+      
+      - name: "Create patch"
+        working-directory: src
+        run: |
+          # Tell git who we are
+          git config --local user.name ${GIT_USER}
+          git config --local user.email ${GIT_USER_EMAIL}
+
+          git status
+          git remote -v 
+          # Set patch filename
+          # Create patch
+          git fetch origin ${PATCH_REF}
+          git format-patch origin/${PATCH_REF} --stdout > ${PATCH_NAME}
+
+      - name: "Commit patch"
+        working-directory: patches
+        run: |
+          # Tell git who we are
+          git config --local user.name ${GIT_USER}
+          git config --local user.email ${GIT_USER_EMAIL}
+
+          mkdir -p ${PATCH_REF} 
+          cp ../src/${PATCH_NAME} ./${PATCH_REF}/${PATCH_NAME}
+          git add ${PATCH_REF}/
+          git status
+          git commit -m "Creating Security Patch ${PATCH_REF}/${PATCH_NAME}"
+
+      - name: "Create pull request for patch"
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+          path: patches
+          branch: ${{ inputs.src_ref }}
+          title: Create security patch ${{ env.PATCH_NAME }}
+          body: Create security patch ${{ env.PATCH_NAME }}
+
