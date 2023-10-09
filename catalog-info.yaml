@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  title: Security Patch Actions
+  name: security-patch-actions
+  description: GitHub Actions for managing Grafana security patches
+  annotations:
+    github.com/project-slug: grafana/security-patch-actions
+    backstage.io/source-location: url:https://github.com/grafana/security-patch-actions/
+spec:
+  type: library
+  lifecycle: production
+  owner: "group:grafana-delivery"
+  system: grafana
