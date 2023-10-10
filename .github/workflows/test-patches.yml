@@ -60,7 +60,7 @@ jobs:
           echo "ORG_STATE=${org_state}" >> "$GITHUB_OUTPUT"
       # Everything in the patch repo lives in main, patch_ref is the folder to use
       - name: "Checkout patch repo"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: steps.org-state.outputs.ORG_STATE == 'active'
         with: 
           repository: ${{ inputs.patch_repo }}
@@ -68,7 +68,7 @@ jobs:
           token: ${{ steps.generate_token.outputs.token }}
 
       - name: "Checkout src repo"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: steps.org-state.outputs.ORG_STATE == 'active'
         with: 
           repository: ${{ inputs.src_repo }}

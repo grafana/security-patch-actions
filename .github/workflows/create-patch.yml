@@ -71,7 +71,7 @@ jobs:
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
 
       - name: "Checkout patch repo"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{ inputs.patch_repo }}
           path: patches 
@@ -79,7 +79,7 @@ jobs:
           token: ${{ steps.generate_token.outputs.token }}
 
       - name: "Checkout repo"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.src_ref }}

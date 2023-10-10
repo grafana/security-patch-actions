@@ -80,7 +80,7 @@ jobs:
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
 
       - name: "Checkout src repo"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{ inputs.src_repo }}
           ref: ${{ inputs.ref }}
@@ -105,14 +105,14 @@ jobs:
           echo Branch mirrored.
 
       - name: "Checkout patch repo"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{ inputs.patch_repo }}
           path: patches 
           token: ${{ steps.generate_token.outputs.token }}
 
       - name: "Checkout dest repo"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: 
           repository: ${{ inputs.dest_repo }}
           ref: ${{ inputs.ref }}
