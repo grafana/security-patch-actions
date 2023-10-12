@@ -46,11 +46,14 @@ jobs:
     steps:
       - name: "Generate token"
         id: generate_token
+        continue-on-error: true
         uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a
         with:
           app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
+
       - name: "Get Grafana org membership"
+        if: steps.generate_token.outputs.token != '' 
         id: org-state
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
@@ -58,10 +61,11 @@ jobs:
           export org_state=$(gh api orgs/grafana/memberships/${{ github.event.sender.login }} -q .state)
           echo "Checking org membership of Grafana for ${{ github.event.sender.login }}. State: ${org_state}"
           echo "ORG_STATE=${org_state}" >> "$GITHUB_OUTPUT"
+
       # Everything in the patch repo lives in main, patch_ref is the folder to use
       - name: "Checkout patch repo"
         uses: actions/checkout@v4
-        if: steps.org-state.outputs.ORG_STATE == 'active'
+        if: steps.org-state.outputs.ORG_STATE == 'active' && steps.generate_token.outputs.token != ''
         with: 
           repository: ${{ inputs.patch_repo }}
           path: patches 
@@ -69,7 +73,7 @@ jobs:
 
       - name: "Checkout src repo"
         uses: actions/checkout@v4
-        if: steps.org-state.outputs.ORG_STATE == 'active'
+        if: steps.org-state.outputs.ORG_STATE == 'active' && steps.generate_token.outputs.token != ''
         with: 
           repository: ${{ inputs.src_repo }}
           ref: ${{ inputs.src_ref }}
@@ -78,7 +82,7 @@ jobs:
 
       - name: "Test patch application"
         id: patches
-        if: steps.org-state.outputs.ORG_STATE == 'active'
+        if: steps.org-state.outputs.ORG_STATE == 'active' && steps.generate_token.outputs.token != ''
         working-directory: src
         run: |
           # Tell git who we are
@@ -92,5 +96,5 @@ jobs:
           fi
 
       - name: Handle patch failure
-        if: failure() && steps.org-state.outputs.ORG_STATE == 'active'
+        if: failure() && steps.org-state.outputs.ORG_STATE == 'active' && steps.generate_token.outputs.token != ''
         run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches. See the documentation for how to resolve this error."
