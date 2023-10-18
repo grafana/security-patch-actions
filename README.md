@@ -44,13 +44,13 @@ gh workflow run --repo grafana/security-patch-actions create-patch.yml \
     -f patch_prefix=<myPrefix>
 ```
 
-### `deploy-patch.yml`
+### `publish-patch.yml`
 
-Applies a single patch from a patches repository onto a ref in a destination repository.
+Publishes a single patch from a patches repository onto a ref in a destination repository.
 This does not push to that branch directly but creates a pull-request.
 
 ```
-gh workflow run --repo grafana/security-patch-actions deploy-patch.yml \
+gh workflow run --repo grafana/security-patch-actions publish-patch.yml \
     -f dest_repo=grafana/grafana-ci-sandbox-security-mirror \
     -f patch_repo=grafana/grafana-ci-sandbox-security-patches \
     -f ref=v10.1.x \
