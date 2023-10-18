@@ -1,5 +1,5 @@
-name: Deploy Security Patch
-run-name: deploy-patch-${{ inputs.dest_repo }}-${{ inputs.ref }}
+name: Publish Security Patch
+run-name: publish-patch-${{ inputs.dest_repo }}-${{ inputs.ref }}
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ on:
       patch_name:
         required: true
         type: string
-        description: "The name of the patch to deploy. Ex: security-patch-202330713.patch"
+        description: "The name of the patch to publish. Ex: security-patch-202330713.patch"
   workflow_call:
     inputs:
       ref:
@@ -37,7 +37,7 @@ on:
       patch_name:
         required: true
         type: string
-        description: "The name of the patch to deploy. Ex: security-patch-202330713.patch"
+        description: "The name of the patch to publish. Ex: security-patch-202330713.patch"
 
 concurrency: "${{ inputs.ref }}-${{ inputs.dest_repo }}"
 env:
@@ -49,7 +49,7 @@ env:
   GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
 
 jobs:
-  deploy-patch:
+  publish-patch:
     runs-on: ubuntu-latest
     steps:
       - name: "Generate token"
@@ -74,7 +74,7 @@ jobs:
           path: dest
           token: ${{ steps.generate_token.outputs.token }}
       
-      - name: "Deploy patch to dest repo"
+      - name: "Publish patch to dest repo"
         id: patch
         working-directory: dest
         run: |
