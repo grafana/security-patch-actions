@@ -118,6 +118,7 @@ jobs:
           ref: ${{ inputs.ref }}
           path: dest 
           token: ${{ steps.generate_token.outputs.token }}
+          fetch-depth: 0
 
       - name: "Apply patches"
         id: patches
