@@ -79,6 +79,7 @@ jobs:
           ref: ${{ inputs.src_ref }}
           path: src
           token: ${{ steps.generate_token.outputs.token }}
+          fetch-depth: 0
 
       - name: "Test patch application"
         id: patches
