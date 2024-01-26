@@ -144,7 +144,7 @@ jobs:
               fi
             else
               # git am returned zero exit code; changes are compatible
-              git am --ignore-whitespace --ignore-space-change --committer-date-is-author-date ../patches/${DIR}/*.patch
+              git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date ../patches/${DIR}/*.patch
             fi
           fi
 

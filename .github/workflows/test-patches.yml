@@ -92,7 +92,7 @@ jobs:
           # Apply patches
           if [ -d "../patches/${PATCH_REF}" ];
           then
-            git am --committer-date-is-author-date -q ../patches/${PATCH_REF}/*.patch > /dev/null 2>&1
+            git am --3way --committer-date-is-author-date -q ../patches/${PATCH_REF}/*.patch > /dev/null 2>&1
           fi
 
       - name: Handle patch failure
