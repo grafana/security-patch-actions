@@ -140,12 +140,12 @@ jobs:
               if ! git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date ../patches/${DIR}/*.patch;
               then
                 # Add because these commits are unstaged
-                git add .
-                git commit -m "Add conflicting files..." --no-verify
+                git add . > /dev/null 2>&1
+                git commit -m "Add conflicting files..." --no-verify > /dev/null 2>&1
               fi
             else
               # git am returned zero exit code; changes are compatible
-              git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date ../patches/${DIR}/*.patch
+              git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date ../patches/${DIR}/*.patch > /dev/null 2>&1
             fi
           fi
 
