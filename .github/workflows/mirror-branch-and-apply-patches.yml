@@ -12,14 +12,17 @@ on:
         required: true
         type: string
         description: "The repository name to mirror from. Ex: grafana/grafana"
+        default: "grafana/grafana"
       dest_repo:
         required: true
         type: string
         description: "The repository name to mirror to. Ex: grafana/grafana-security-mirror"
+        default: "grafana/grafana-security-mirror"
       patch_repo:
         required: true
         type: string
         description: "The repository name where the patch will be saved. Ex: grafana/grafana-security-patches"
+        default: "grafana/grafana-security-patches"
       patch_dir:
         required: false
         type: string
@@ -81,7 +84,7 @@ jobs:
 
       - name: "Checkout src repo"
         uses: actions/checkout@v4
-        with: 
+        with:
           repository: ${{ inputs.src_repo }}
           ref: ${{ inputs.ref }}
           path: src
@@ -98,7 +101,7 @@ jobs:
 
           # Add DEST_REPO as remote
           git remote add dest https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO} > /dev/null 2>&1
-          
+
           # Fetch ${DEST_REPO}/${REF}, if it doesn't exist then create it
           git fetch dest ${REF} > /dev/null 2>&1 || echo "" > /dev/null 2>&1
           git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease > /dev/null 2>&1
@@ -106,23 +109,23 @@ jobs:
 
       - name: "Checkout patch repo"
         uses: actions/checkout@v4
-        with: 
+        with:
           repository: ${{ inputs.patch_repo }}
-          path: patches 
+          path: patches
           token: ${{ steps.generate_token.outputs.token }}
 
       - name: "Checkout dest repo"
         uses: actions/checkout@v4
-        with: 
+        with:
           repository: ${{ inputs.dest_repo }}
           ref: ${{ inputs.ref }}
-          path: dest 
+          path: dest
           token: ${{ steps.generate_token.outputs.token }}
           fetch-depth: 0
 
       - name: "Apply patches"
         id: patches
-        working-directory: dest 
+        working-directory: dest
         run: |
           PATCH_DIR_INPUT=${{ inputs.patch_dir }}
           DIR="${PATCH_DIR_INPUT:-$REF}"
@@ -135,7 +138,7 @@ jobs:
           then
             # If we're applying patches with conflicts then ignore the errors and `git add / git commit` the differences.
             if [ ${{ inputs.with_conflicts }} ];
-            then 
+            then
               # If `git am --3way` is not successful then `git add / git commit`.
               if ! git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date ../patches/${DIR}/*.patch;
               then
@@ -144,13 +147,14 @@ jobs:
                 git commit -m "Add conflicting files..." --no-verify > /dev/null 2>&1
               fi
             else
-              # git am returned zero exit code; changes are compatible
-              git checkout -b tmp
-              git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date ../patches/${DIR}/*.patch > /dev/null 2>&1
-              git checkout '${{ inputs.ref }}'
-              git merge --squash tmp
-              git commit -m "apply security patches" -m "$(git log '${{ inputs.ref }}...tmp')"
-              git branch -D tmp
+              for patchfile in $(ls ../patches/${DIR}/*.patch); do
+                git checkout -b tmp
+                git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date "../patches/${DIR}/${patchfile}" > /dev/null 2>&1
+                git checkout '${{ inputs.ref }}'
+                git merge --squash --no-ff tmp
+                git commit -m "apply security patch: ${patchfile}" -m "$(git log '${{ inputs.ref }}...tmp')"
+                git branch -D tmp
+              done
             fi
           fi
 
