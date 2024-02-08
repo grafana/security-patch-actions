@@ -137,7 +137,7 @@ jobs:
           if [ -d "../patches/${DIR}" ];
           then
             # If we're applying patches with conflicts then ignore the errors and `git add / git commit` the differences.
-            if [ ${{ inputs.with_conflicts }} ];
+            if ${{ inputs.with_conflicts }};
             then
               # If `git am --3way` is not successful then `git add / git commit`.
               if ! git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date ../patches/${DIR}/*.patch;
@@ -147,12 +147,13 @@ jobs:
                 git commit -m "Add conflicting files..." --no-verify > /dev/null 2>&1
               fi
             else
-              for patchfile in $(ls ../patches/${DIR}/*.patch); do
+              for patchfile in ../patches/${DIR}/*.patch; do
                 git checkout -b tmp
-                git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date "../patches/${DIR}/${patchfile}" > /dev/null 2>&1
+                git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date "${patchfile}" > /dev/null 2>&1
                 git checkout '${{ inputs.ref }}'
-                git merge --squash --no-ff tmp
-                git commit -m "apply security patch: ${patchfile}" -m "$(git log '${{ inputs.ref }}...tmp')"
+                git merge --squash tmp
+                patchname=$(basename "${patchfile}")
+                git commit -m "apply security patch: ${DIR}/${patchname}" -m "$(git log '${{ inputs.ref }}...tmp')"
                 git branch -D tmp
               done
             fi
