@@ -120,7 +120,7 @@ jobs:
           git commit -m "Creating Security Patch ${PATCH_REF}/${PATCH_NAME}"
 
       - name: "Create pull request for patch"
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ steps.generate_token.outputs.token }}
           path: patches
