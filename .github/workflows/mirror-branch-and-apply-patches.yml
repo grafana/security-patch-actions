@@ -156,10 +156,15 @@ jobs:
                 git commit -m "apply security patch: ${DIR}/${patchname}" -m "$(git log '${{ inputs.ref }}...tmp')"
                 git branch -D tmp
               done
+              # Checkout new branch and push
+              TMP_BRANCH_NAME=${REF}-$(git log -1 --format=%H)
+              git checkout -b ${TMP_BRANCH_NAME} > /dev/null 2>&1
+              git push origin ${TMP_BRANCH_NAME} > /dev/null 2>&1
             fi
           fi
 
           git push origin ${REF} > /dev/null 2>&1
+
 
       - name: Handle patch failure
         if: ${{ failure() && steps.patches.conclusion == 'failure' }}
