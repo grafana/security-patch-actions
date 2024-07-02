@@ -16,6 +16,10 @@ on:
         required: true
         type: string
         description: "The repository name to mirror to. Ex: grafana/grafana-security-mirror"
+      dry_run:
+        required: false
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       ref:
@@ -30,6 +34,10 @@ on:
         required: true
         type: string
         description: "The repository name to mirror to. Ex: grafana/grafana-security-mirror"
+      dry_run:
+        required: false
+        type: boolean
+        default: false
 
 concurrency: "${{ inputs.ref }}-${{ inputs.src_repo }}"
 env:
@@ -63,6 +71,12 @@ jobs:
         id: mirror
         working-directory: src
         run: |
+          dry_run=
+
+          if [[ ${{ inputs.dry_run }} == "true" ]]; then
+            dry_run=echo
+          fi
+
           # Tell git who we are
           git config --local user.name ${GIT_USER}
           git config --local user.email ${GIT_USER_EMAIL}
@@ -71,6 +85,6 @@ jobs:
           git remote add dest https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO} > /dev/null 2>&1
           
           # Fetch ${DEST_REPO}/${REF}, if it doesn't exist then create it
-          git fetch dest ${REF} > /dev/null 2>&1 || echo "" > /dev/null 2>&1
-          git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease > /dev/null 2>&1
-          echo Branch mirrored.
+          $dry_run git fetch dest ${REF} > /dev/null 2>&1 || echo "" > /dev/null 2>&1
+          $dry_run git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease > /dev/null 2>&1
+          echo Branch mirrored. Dry run? ${{ inputs.dry_run }}
