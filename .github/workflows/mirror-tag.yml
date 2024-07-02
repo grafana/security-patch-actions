@@ -82,4 +82,4 @@ jobs:
           git config --local user.email ${GIT_USER_EMAIL}
 
           # Push the given tag to the destination repo.
-          dry_run git push https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO} ${{ inputs.tag }}
+          $dry_run git push https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO} ${{ inputs.tag }}

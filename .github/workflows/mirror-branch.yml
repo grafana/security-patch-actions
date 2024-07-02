@@ -85,6 +85,6 @@ jobs:
           git remote add dest https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO} > /dev/null 2>&1
           
           # Fetch ${DEST_REPO}/${REF}, if it doesn't exist then create it
-          dry_run git fetch dest ${REF} > /dev/null 2>&1 || echo "" > /dev/null 2>&1
-          dry_run git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease > /dev/null 2>&1
-          echo Branch mirrored.
+          $dry_run git fetch dest ${REF} > /dev/null 2>&1 || echo "" > /dev/null 2>&1
+          $dry_run git push dest "refs/remotes/origin/${REF}:refs/heads/${REF}" --force-with-lease > /dev/null 2>&1
+          echo Branch mirrored. Dry run? ${{ inputs.dry_run }}
