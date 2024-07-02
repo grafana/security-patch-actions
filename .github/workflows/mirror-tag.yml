@@ -18,7 +18,7 @@ on:
         description: "The repository name to mirror to. Ex: grafana/grafana-security-mirror"
       dry_run:
         required: false
-        type: bool
+        type: boolean
         default: false
   workflow_call:
     inputs:
@@ -36,7 +36,7 @@ on:
         description: "The repository name to mirror to. Ex: grafana/grafana-security-mirror"
       dry_run:
         required: false
-        type: bool
+        type: boolean
         default: false
 
 concurrency: "${{ inputs.tag }}-${{ inputs.src_repo }}"
