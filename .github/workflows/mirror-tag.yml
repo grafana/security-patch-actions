@@ -16,6 +16,10 @@ on:
         required: true
         type: string
         description: "The repository name to mirror to. Ex: grafana/grafana-security-mirror"
+      dry_run:
+        required: false
+        type: bool
+        default: false
   workflow_call:
     inputs:
       tag:
@@ -30,6 +34,10 @@ on:
         required: true
         type: string
         description: "The repository name to mirror to. Ex: grafana/grafana-security-mirror"
+      dry_run:
+        required: false
+        type: bool
+        default: false
 
 concurrency: "${{ inputs.tag }}-${{ inputs.src_repo }}"
 env:
@@ -63,9 +71,15 @@ jobs:
         id: mirror
         working-directory: src
         run: |
+          dry_run=
+
+          if [[ ${{ inputs.dry_run }} == "true" ]]; then
+            dry_run=echo
+          fi
+
           # Tell git who we are
           git config --local user.name ${GIT_USER}
           git config --local user.email ${GIT_USER_EMAIL}
 
           # Push the given tag to the destination repo.
-          git push https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO} ${{ inputs.tag }}
+          dry_run git push https://grafana-delivery-bot:${{ steps.generate_token.outputs.token }}@github.com/${DEST_REPO} ${{ inputs.tag }}
