@@ -89,6 +89,7 @@ jobs:
           ref: ${{ inputs.ref }}
           path: src
           token: ${{ steps.generate_token.outputs.token }}
+          progress: false
           fetch-depth: 0
 
       - name: "Mirror src repo"
