@@ -154,7 +154,7 @@ jobs:
                 git checkout '${{ inputs.ref }}'
                 git merge --squash tmp > /dev/null 2>&1
                 patchname=$(basename "${patchfile}")
-                git commit -m "apply security patch: ${DIR}/${patchname}" -m "$(git log '${{ inputs.ref }}...tmp')" > /dev/null 2>&1
+                git commit -m "apply security patch: ${DIR}/${patchname}" -m "$(git log '${{ inputs.ref }}...tmp')" -q
                 git branch -D tmp
               done
             fi
