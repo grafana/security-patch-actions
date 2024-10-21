@@ -152,7 +152,7 @@ jobs:
                 git checkout -b tmp
                 git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date "${patchfile}" > /dev/null 2>&1
                 git checkout '${{ inputs.ref }}'
-                git merge --squash tmp > /dev/null 2>&1
+                git merge --squash -q tmp
                 patchname=$(basename "${patchfile}")
                 git commit -m "apply security patch: ${DIR}/${patchname}" -m "$(git log '${{ inputs.ref }}...tmp')" -q
                 git branch -D tmp
