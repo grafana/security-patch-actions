@@ -89,6 +89,7 @@ jobs:
           ref: ${{ inputs.ref }}
           path: src
           token: ${{ steps.generate_token.outputs.token }}
+          progress: false
           fetch-depth: 0
 
       - name: "Mirror src repo"
@@ -151,9 +152,9 @@ jobs:
                 git checkout -b tmp
                 git am --3way --ignore-whitespace --ignore-space-change --committer-date-is-author-date "${patchfile}" > /dev/null 2>&1
                 git checkout '${{ inputs.ref }}'
-                git merge --squash tmp
+                git merge --squash -q tmp
                 patchname=$(basename "${patchfile}")
-                git commit -m "apply security patch: ${DIR}/${patchname}" -m "$(git log '${{ inputs.ref }}...tmp')"
+                git commit -m "apply security patch: ${DIR}/${patchname}" -m "$(git log '${{ inputs.ref }}...tmp')" -q
                 git branch -D tmp
               done
             fi
@@ -163,4 +164,4 @@ jobs:
 
       - name: Handle patch failure
         if: ${{ failure() && steps.patches.conclusion == 'failure' }}
-        run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches to the mirror. See the documentation here for how to resolve this error."
+        run: echo "::error title='Failed to apply patches when mirroring'::The sync process was not able to apply active patches to the mirror. See the documentation on how to resolve this error."
