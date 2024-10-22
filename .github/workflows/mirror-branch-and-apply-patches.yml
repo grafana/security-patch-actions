@@ -90,7 +90,6 @@ jobs:
           path: src
           token: ${{ steps.generate_token.outputs.token }}
           progress: false
-          fetch-depth: 0
 
       - name: "Mirror src repo"
         id: mirror
@@ -122,7 +121,7 @@ jobs:
           ref: ${{ inputs.ref }}
           path: dest
           token: ${{ steps.generate_token.outputs.token }}
-          fetch-depth: 0
+          progerss: false
 
       - name: "Apply patches"
         id: patches
